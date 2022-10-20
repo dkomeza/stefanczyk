@@ -1,0 +1,10 @@
+<h1>{{context.subject}}</h1>
+<form action="book" method="get">
+  <select name="select" size={{count}}>
+    <option value="" disabled hidden selected> -- select an option -- </option>
+    {{#each context.fields}}
+      <option value={{name}}>{{name}}</option>
+    {{/each}}
+  </select><br />
+  <button type="submit">Submit</button>
+</form>
