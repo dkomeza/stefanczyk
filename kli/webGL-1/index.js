@@ -1,4 +1,5 @@
 const express = require("express")
+const fs = require("fs")
 const app = express()
 const PORT = 3000
 
@@ -6,13 +7,13 @@ app.use(express.static('static'))
 app.use(express.static('static/pages')) 
 
 app.get("/pages", function (req, res) {
-    fs.readdir(__dirname, function (err, files) {
+    fs.readdir(`${__dirname}/static/pages`,function (err, files) {
         if (err) {
             return console.log(err);
         }
-        console.log(files)
+        res.setHeader('content-type', 'application/json');
+        res.send(files)
     });
-    res.send("supcio")
 })
 
 app.listen(PORT, () => {
