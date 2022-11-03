@@ -1,0 +1,16 @@
+<h1>{{context.subject}}</h1>
+<form action="/4" method="get">
+  <label for="input">Input text</label><br />
+  <input type="text" name="input" id="input" /><br />
+  <button type="submit">Submit</button>
+</form>
+<h2>{{shortTitle context.title}}</h2>
+<h3>{{context.title}}</h3>
+<p>{{splitBoi context.title}}</p>
+{{#if input}}
+  {{#each input}}
+    <h2 style="margin-top: 32px;">{{shortTitle this}}</h2>
+    <h3>{{this}}</h3>
+    <p>{{splitBoi this}}</p>
+  {{/each}}
+{{/if}}

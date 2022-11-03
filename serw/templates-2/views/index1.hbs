@@ -1,0 +1,32 @@
+<h1>{{subject}}</h1>
+<ul>
+  {{#each countries}}
+    <li>{{@index}} {{this}}</li>
+  {{/each}}
+</ul>
+
+<table style="margin: 32px; border: 1px solid black" border="1px solid black">
+  {{#each user}}
+    <tr>
+      <th>
+        {{@index}}
+      </th>
+      <th>
+        {{@key}}
+      </th>
+      <td>
+        {{this}}
+      </td>
+    </tr>
+
+  {{/each}}
+</table>
+
+<ul>
+  {{#each books}}
+    <li>
+      {{@index}}
+      {{title}}
+    </li>
+  {{/each}}
+</ul>

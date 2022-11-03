@@ -1,0 +1,12 @@
+* {
+    margin: 0px;
+    box-sizing: border-box;
+}
+
+body {
+    margin: 32px;
+}
+
+select {
+    width: 100px;
+}

@@ -1,0 +1,15 @@
+<h1>{{subject}}</h1>
+<ul>
+  {{#each books}}
+  <li>
+    {{title}} 
+    {{#if author}}
+      {{author}}
+      {{title}}
+    {{else}}
+      brak autora
+    {{/if}}
+    {{lang}} 
+  {{/each}}
+  </li>
+</ul>
