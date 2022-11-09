@@ -1,0 +1,30 @@
+{
+    "T-34-85": {
+        "body": {
+            "health": 810,
+            "weight": 33650,
+            "hull-armor": [45, 45, 40],
+            "turret-armor": [90, 75, 52]
+        }, 
+        "engine": {
+            "top-speed": 54,
+            "reverse-speed": 20,
+            "power": 635
+        },
+        "weaponry": {
+            "damage": 180,
+            "penetration": 144,
+            "reload": 5.75,
+            "elevation": 22,
+            "depression": 7,
+            "gun-traverse": 39,
+            "turret-traverse": 48,
+            "dispersion": 0.35,
+            "aim-time": 2.21,
+            "dispersion-moving": 0.22,
+            "dispersion-tank-traverse": 0.22,
+            "dispersion-turret-traverse": 0.14,
+            "dispersion-after-firing": 4
+        }
+    }
+}
