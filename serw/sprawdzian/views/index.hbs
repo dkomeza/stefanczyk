@@ -1,0 +1,22 @@
+<h1>Sprawdzian</h1>
+<table>
+{{#each root}}
+    {{>tableRow this}}
+{{/each}}
+</table>
+<form action="/category" method="get">
+    <select name="select" id="">
+        {{#each root}}
+            {{#if (getCategories category)}}
+                <option value="{{category}}">{{category}}</option>
+            {{/if}}
+        {{/each}}
+    </select>
+    <div class="checkBoxes">
+        {{#each root}}
+            {{#if (getLetters title)}}
+                <input type="checkbox" name="checkbox" value="{{title}}">{{title}}</input>
+            {{/if}}
+        {{/each}}
+    </div>
+</form>
