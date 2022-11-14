@@ -5,9 +5,22 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Document</title>
-    <script type="module" src="./dist/index.js">
-      var exports = {};
+    <link rel="stylesheet" href="./scss/index.css" />
+    <script type="importmap">
+      {
+        "imports": {
+          "three": "./modules/three.js/build/three.module.js",
+          "three/addons/": "./modules/three.js/examples/jsm/",
+          "three/js/": "./modules/three.js/examples/js/"
+        }
+      }
     </script>
+    <script type="module" src="./dist/index.js"></script>
   </head>
-  <body></body>
+  <body>
+    <div class="info">
+      <pre id="position"></pre>
+    </div>
+    <div id="container"></div>
+  </body>
 </html>
