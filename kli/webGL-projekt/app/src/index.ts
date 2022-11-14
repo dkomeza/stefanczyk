@@ -7,13 +7,13 @@ import { OrbitControls } from "three/addons/controls/OrbitControls.js";
 import { Scene, Renderer, Camera, StatsClass } from "./Constructor.js";
 import { Car } from "./Car.js";
 
-import { Physics, Engine, Gearbox } from "./Physics.js";
+import Physics from "./Physics.js";
 
 import events from "./Events.js";
 
 window.onload = function () {
   let camera: any, scene: any, renderer: any, controls: any, stats: any;
-  let carClass: any, physics: any, engine: any, gearbox: any;
+  let carClass: any, physics: any;
   let car: any;
   let keyDict = { w: false, a: false, s: false, d: false };
   let rpm = 8800;
@@ -48,24 +48,15 @@ window.onload = function () {
     car = carClass.getCar();
     scene.add(car);
     physics = new Physics();
-    engine = new Engine();
-    gearbox = new Gearbox();
-    physics.updatePhysics(2000, 1);
     events(keyDict);
     window.addEventListener("keydown", (e) => {
       switch (e.code) {
         case "ArrowUp":
-          console.log(gear);
-          if (gear < 7) {
-            gear++;
-            rpm = gearbox.adjustRPM(rpm, gear - 1, gear);
-          }
+          physics.updateGearbox("up");
           break;
         case "ArrowDown":
-          if (gear >= 0) {
-            gear--;
-            rpm = gearbox.adjustRPM(rpm, gear + 1, gear);
-          }
+          physics.updateGearbox("down");
+          break;
       }
     });
   }
@@ -96,14 +87,6 @@ window.onload = function () {
         rpm -= 35;
       }
     }
-    // hp = Math.round(engine.getHP(rpm));
-    // engine.getEngine().currentHP = hp;
-    // engine.getEngine().currentRPM = rpm;
-    // torque = Math.round(engine.getTorque());
-    // finalTorque = Math.round(gearbox.getTorque(torque, gear));
-    // wheelForce = Math.round(physics.getWheelForce(finalTorque));
-    // wheelRPM = Math.round(gearbox.getWheelRPM(rpm, gear));
-    // wheelSpeed = Math.round(physics.getWheelSpeed(wheelRPM));
 
     speed +=
       Math.round(
@@ -113,8 +96,6 @@ window.onload = function () {
     statsContainer!.innerText = JSON.stringify(
       {
         rpm: rpm,
-        // wheelRPM: wheelRPM,
-        // wheelSpeed: wheelSpeed,
         hp: hp,
         acceleration:
           Math.round(
@@ -131,6 +112,7 @@ window.onload = function () {
       null,
       2
     );
+    physics.updatePhysics(2000);
     renderer.render(scene, camera);
     stats.update();
   }
