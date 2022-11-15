@@ -2,6 +2,7 @@ interface physics {
   weight: number;
   wheelRadius: number;
   gravity: number;
+  airResistance: number;
   lastTime: number;
   timeDelta: number;
 }
@@ -13,6 +14,7 @@ interface engine {
   currentHP: number;
   currentRPM: number;
   currentTorque: number;
+  currentPedalState: boolean;
 }
 interface gearbox {
   currentGear: number;
@@ -34,6 +36,7 @@ interface kinematics {
   currentInertia: number;
   currentAirResistance: number;
   currentRollingResistance: number;
+  currentWheelRPM: number;
 }
 interface engineClass {
   engine: engine;
@@ -50,10 +53,12 @@ interface gearboxClass {
   adjustRPM: (rpm: number, previousGear: number, gear: number) => void;
   getWheelForce: (torque: number) => number;
   changeGear: (gear: "up" | "down") => void;
+  getEngineRPM: (rpm: number, gear: number) => number;
 }
 interface kinematicsClass {
   kinematics: kinematics;
   updateKinematics: () => void;
+  getWheelRPM: () => number;
 }
 interface physicsData {
   currentHP: number;
@@ -75,6 +80,7 @@ class Physics {
       weight: 1000,
       wheelRadius: 0.31,
       gravity: 9.81,
+      airResistance: 0.5,
       lastTime: performance.now(),
       timeDelta: 0,
     };
@@ -96,17 +102,30 @@ class Physics {
   }
 
   updatePhysics() {
-    this.Engine.updateEngine(this.Engine.engine.currentRPM);
+    this.Engine.updateEngine(
+      this.Gearbox.getEngineRPM(
+        this.Kinematics.getWheelRPM(),
+        this.Gearbox.gearbox.currentGear
+      ) < 800
+        ? 800
+        : this.Gearbox.getEngineRPM(
+            this.Kinematics.getWheelRPM(),
+            this.Gearbox.gearbox.currentGear
+          ) > this.Engine.engine.maxRPM
+        ? this.Engine.engine.maxRPM - 200
+        : this.Gearbox.getEngineRPM(
+            this.Kinematics.getWheelRPM(),
+            this.Gearbox.gearbox.currentGear
+          )
+    );
     this.Gearbox.updateGearbox(
       this.Engine.engine.currentRPM,
       this.Engine.engine.currentTorque
     );
-    console.log(this.Gearbox.gearbox.currentRPM);
-    this.Engine.engine.currentRPM = this.Gearbox.gearbox.currentRPM;
+    // this.Engine.engine.currentRPM = this.Gearbox.gearbox.currentRPM;
     this.updateTime();
     this.Kinematics.updateKinematics();
     this.updatePhysicsData();
-    console.log(this.data);
   }
 
   updateTime() {
@@ -128,6 +147,10 @@ class Physics {
   updateGearbox(direction: "up" | "down") {
     this.Gearbox.changeGear(direction);
   }
+
+  setPedalState(state: boolean) {
+    this.Engine.engine.currentPedalState = state;
+  }
 }
 
 class Engine {
@@ -141,11 +164,14 @@ class Engine {
       currentHP: 0,
       currentRPM: 800,
       currentTorque: 0,
+      currentPedalState: false,
     };
   }
   updateEngine(rpm: number) {
     this.engine.currentRPM = rpm;
-    this.engine.currentHP = this.getHP(this.engine.currentRPM);
+    this.engine.currentHP = this.engine.currentPedalState
+      ? this.getHP(this.engine.currentRPM)
+      : 0;
     this.engine.currentTorque = this.getTorque();
   }
   getTorque() {
@@ -153,7 +179,7 @@ class Engine {
   }
   getHP(rpm: number) {
     if (rpm < this.engine.minRPM) {
-      return 0;
+      return this.engine.minHP;
     } else {
       let rmpScale =
         ((rpm - this.engine.minRPM) /
@@ -169,9 +195,9 @@ class Engine {
       return (
         minHP +
         (Math.round(
-          0.96 * ((rpmScale - 1) / (Math.pow(rpmScale - 1, 2) + 1) + 0.5) * 100
+          0.96 * ((rpmScale - 1) / (Math.pow(rpmScale - 1, 2) + 1) + 0.5) * 1000
         ) /
-          100) *
+          1000) *
           (maxHP - minHP)
       );
     } else {
@@ -211,10 +237,24 @@ class Gearbox {
     this.gearbox.wheelForce = this.getWheelForce(this.gearbox.wheelTorque);
   }
   getWheelTorque(torque: number, gear: number) {
-    return torque * this.gearbox.gearRatio[gear - 1] * 0.92;
+    if (gear === 0) {
+      return 0;
+    }
+    return (
+      torque *
+      this.gearbox.gearRatio[gear - 1] *
+      this.gearbox.finalDriveRatio *
+      0.92
+    );
   }
   getWheelRPM(rpm: number, gear: number) {
-    return rpm / this.gearbox.gearRatio[gear - 1];
+    if (gear === 0) {
+      return 0;
+    } else {
+      return (
+        rpm / (this.gearbox.gearRatio[gear - 1] * this.gearbox.finalDriveRatio)
+      );
+    }
   }
   adjustRPM(rpm: number, previousGear: number, gear: number) {
     this.gearbox.currentRPM =
@@ -231,29 +271,38 @@ class Gearbox {
           );
   }
   getWheelForce(torque: number) {
-    return torque / 0.31;
+    return Math.round(torque / 0.31);
   }
   changeGear(direction: "up" | "down") {
     if (direction === "up" && this.gearbox.currentGear < this.gearbox.maxGear) {
       this.gearbox.previousGear = this.gearbox.currentGear;
       this.gearbox.currentGear++;
-      this.adjustRPM(
-        this.gearbox.currentRPM,
-        this.gearbox.previousGear,
-        this.gearbox.currentGear
-      );
+      // this.adjustRPM(
+      //   this.gearbox.currentRPM,
+      //   this.gearbox.previousGear,
+      //   this.gearbox.currentGear
+      // );
     } else if (
       direction === "down" &&
       this.gearbox.currentGear > this.gearbox.minGear
     ) {
       this.gearbox.previousGear = this.gearbox.currentGear;
       this.gearbox.currentGear--;
-      this.adjustRPM(
-        this.gearbox.currentRPM,
-        this.gearbox.previousGear,
-        this.gearbox.currentGear
-      );
+      // this.adjustRPM(
+      //   this.gearbox.currentRPM,
+      //   this.gearbox.previousGear,
+      //   this.gearbox.currentGear
+      // );
     }
+  }
+  getEngineRPM(wheelRPM: number, gear: number) {
+    if (gear === 0) {
+      return 800;
+    }
+    return (
+      wheelRPM *
+      (this.gearbox.gearRatio[gear - 1] * this.gearbox.finalDriveRatio)
+    );
   }
 }
 class Kinematics {
@@ -269,6 +318,7 @@ class Kinematics {
       currentInertia: 0,
       currentAirResistance: 0,
       currentRollingResistance: 0,
+      currentWheelRPM: 0,
     };
     this.physics = physics;
     this.engine = engine;
@@ -285,12 +335,21 @@ class Kinematics {
       this.kinematics.currentForce,
       this.physics.weight
     );
+    // console.log(this.kinematics.currentAcceleration);
     this.kinematics.currentSpeed = this.updateSpeed();
+    this.kinematics.currentWheelRPM = this.getWheelRPM();
   }
 
   getWheelSpeed() {
     return (
       ((2 * Math.PI * this.physics.wheelRadius) / 60) * this.gearbox.wheelRPM
+    );
+  }
+
+  getWheelRPM() {
+    return (
+      this.kinematics.currentSpeed /
+      ((2 * Math.PI * this.physics.wheelRadius) / 60)
     );
   }
 
@@ -303,10 +362,13 @@ class Kinematics {
   }
 
   getAirResistance() {
-    return 0.05 * Math.pow(this.kinematics.currentSpeed, 2);
+    return (
+      this.physics.airResistance * Math.pow(this.kinematics.currentSpeed, 2)
+    );
   }
 
   getForce() {
+    // console.log(this.gearbox.wheelForce);
     return (
       this.gearbox.wheelForce -
       this.kinematics.currentAirResistance -
