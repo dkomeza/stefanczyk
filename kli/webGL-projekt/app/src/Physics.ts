@@ -29,6 +29,12 @@ interface gearbox {
   wheelRPM: number;
   wheelForce: number;
 }
+
+interface tyres {
+  currentRPM: number;
+  currentForce: number;
+  maxForce: number;
+}
 interface kinematics {
   currentSpeed: number;
   currentForce: number;
@@ -50,7 +56,7 @@ interface gearboxClass {
   updateGearbox: (rpm: number, torque: number) => void;
   getWheelTorque: (torque: number, gear: number) => number;
   getWheelRPM: (rpm: number, gear: number) => number;
-  adjustRPM: (rpm: number, previousGear: number, gear: number) => void;
+  adjustRPM: (rpm: number, previousGear: number, gear: number) => number;
   getWheelForce: (torque: number) => number;
   changeGear: (gear: "up" | "down") => void;
   getEngineRPM: (rpm: number, gear: number) => number;
@@ -59,6 +65,13 @@ interface kinematicsClass {
   kinematics: kinematics;
   updateKinematics: () => void;
   getWheelRPM: () => number;
+}
+interface tyresClass {
+  tyres: {
+    front: tyres;
+    rear: tyres;
+  };
+  checkRearGrip: (force: number) => number;
 }
 interface physicsData {
   currentHP: number;
@@ -213,7 +226,7 @@ class Gearbox {
       previousGear: 0,
       minGear: -1,
       maxGear: 7,
-      gearRatio: [3.42, 2.08, 1.36, 1, 0.74, 0.5, 0.34],
+      gearRatio: [3.5, 2.08, 1.54, 1.26, 1.1, 0.98, 0.88],
       finalDriveRatio: 3.42,
       currentTorque: 0,
       currentRPM: 0,
@@ -257,42 +270,28 @@ class Gearbox {
     }
   }
   adjustRPM(rpm: number, previousGear: number, gear: number) {
-    this.gearbox.currentRPM =
-      Math.round(
-        rpm /
-          (this.gearbox.gearRatio[previousGear - 1] /
-            this.gearbox.gearRatio[gear - 1])
-      ) > 8800
-        ? 8800
-        : Math.round(
-            rpm /
-              (this.gearbox.gearRatio[previousGear - 1] /
-                this.gearbox.gearRatio[gear - 1])
-          );
+    return Math.round(
+      rpm /
+        (this.gearbox.gearRatio[previousGear - 1] /
+          this.gearbox.gearRatio[gear - 1])
+    );
   }
   getWheelForce(torque: number) {
     return Math.round(torque / 0.31);
   }
   changeGear(direction: "up" | "down") {
     if (direction === "up" && this.gearbox.currentGear < this.gearbox.maxGear) {
-      this.gearbox.previousGear = this.gearbox.currentGear;
       this.gearbox.currentGear++;
-      // this.adjustRPM(
-      //   this.gearbox.currentRPM,
-      //   this.gearbox.previousGear,
-      //   this.gearbox.currentGear
-      // );
     } else if (
       direction === "down" &&
-      this.gearbox.currentGear > this.gearbox.minGear
+      this.gearbox.currentGear > this.gearbox.minGear &&
+      this.adjustRPM(
+        this.gearbox.currentRPM,
+        this.gearbox.currentGear,
+        this.gearbox.currentGear - 1
+      ) <= 8800
     ) {
-      this.gearbox.previousGear = this.gearbox.currentGear;
       this.gearbox.currentGear--;
-      // this.adjustRPM(
-      //   this.gearbox.currentRPM,
-      //   this.gearbox.previousGear,
-      //   this.gearbox.currentGear
-      // );
     }
   }
   getEngineRPM(wheelRPM: number, gear: number) {
@@ -310,6 +309,7 @@ class Kinematics {
   physics: physics;
   engine: engine;
   gearbox: gearbox;
+  Tyres: tyresClass;
   constructor(physics: physics, engine: engine, gearbox: gearbox) {
     this.kinematics = {
       currentSpeed: 0,
@@ -323,6 +323,7 @@ class Kinematics {
     this.physics = physics;
     this.engine = engine;
     this.gearbox = gearbox;
+    this.Tyres = new Tyres();
   }
 
   updateKinematics() {
@@ -368,12 +369,15 @@ class Kinematics {
   }
 
   getForce() {
-    // console.log(this.gearbox.wheelForce);
     return (
-      this.gearbox.wheelForce -
+      this.Tyres.checkRearGrip(this.gearbox.wheelForce) -
       this.kinematics.currentAirResistance -
       this.kinematics.currentRollingResistance
     );
+  }
+
+  getDownForce() {
+    return 0;
   }
 
   updateSpeed() {
@@ -381,6 +385,39 @@ class Kinematics {
       this.kinematics.currentSpeed +
       this.kinematics.currentAcceleration * (this.physics.timeDelta / 1000)
     );
+  }
+}
+class Tyres {
+  tyres: {
+    front: tyres;
+    rear: tyres;
+  };
+  constructor() {
+    this.tyres = {
+      front: {
+        currentRPM: 0,
+        currentForce: 0,
+        maxForce: 6000,
+      },
+      rear: {
+        currentRPM: 0,
+        currentForce: 0,
+        maxForce: 7000,
+      },
+    };
+  }
+
+  updateTyres(downforce: number) {
+    this.tyres.front.maxForce = this.tyres.front.maxForce * downforce;
+    this.tyres.rear.maxForce = this.tyres.rear.maxForce * downforce;
+  }
+
+  checkRearGrip(force: number) {
+    if (force > this.tyres.rear.maxForce) {
+      return force;
+    } else {
+      return force;
+    }
   }
 }
 
