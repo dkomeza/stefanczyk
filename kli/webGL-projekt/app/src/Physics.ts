@@ -46,6 +46,7 @@ interface kinematics {
 }
 interface engineClass {
   engine: engine;
+  revLimit: (rpm: number) => number;
   updateEngine: (rpm: number) => void;
   getTorque: () => number;
   getHP: (rpm: number) => number;
@@ -119,23 +120,12 @@ class Physics {
       this.Gearbox.getEngineRPM(
         this.Kinematics.getWheelRPM(),
         this.Gearbox.gearbox.currentGear
-      ) < 800
-        ? 800
-        : this.Gearbox.getEngineRPM(
-            this.Kinematics.getWheelRPM(),
-            this.Gearbox.gearbox.currentGear
-          ) > this.Engine.engine.maxRPM
-        ? this.Engine.engine.maxRPM - 200
-        : this.Gearbox.getEngineRPM(
-            this.Kinematics.getWheelRPM(),
-            this.Gearbox.gearbox.currentGear
-          )
+      )
     );
     this.Gearbox.updateGearbox(
       this.Engine.engine.currentRPM,
       this.Engine.engine.currentTorque
     );
-    // this.Engine.engine.currentRPM = this.Gearbox.gearbox.currentRPM;
     this.updateTime();
     this.Kinematics.updateKinematics();
     this.updatePhysicsData();
@@ -180,8 +170,11 @@ class Engine {
       currentPedalState: false,
     };
   }
+  revLimit(rpm: number) {
+    return rpm < 800 ? 800 : rpm > 8800 ? 8750 : rpm;
+  }
   updateEngine(rpm: number) {
-    this.engine.currentRPM = rpm;
+    this.engine.currentRPM = this.revLimit(rpm);
     this.engine.currentHP = this.engine.currentPedalState
       ? this.getHP(this.engine.currentRPM)
       : 0;
