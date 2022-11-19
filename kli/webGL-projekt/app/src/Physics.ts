@@ -1,5 +1,6 @@
 interface physics {
   weight: number;
+  weightDistribution: number;
   wheelRadius: number;
   gravity: number;
   airResistance: number;
@@ -30,10 +31,13 @@ interface gearbox {
   wheelForce: number;
 }
 
-interface tyres {
-  currentRPM: number;
-  currentForce: number;
-  maxForce: number;
+interface tyre {
+  currentForce: number[];
+  weight: number;
+  downforce: number;
+  grip: number;
+  width: number;
+  finalForce: number;
 }
 interface kinematics {
   currentSpeed: number;
@@ -43,6 +47,8 @@ interface kinematics {
   currentAirResistance: number;
   currentRollingResistance: number;
   currentWheelRPM: number;
+  frontDownforce: number;
+  rearDownforce: number;
 }
 interface engineClass {
   engine: engine;
@@ -92,6 +98,7 @@ class Physics {
   constructor() {
     this.physics = {
       weight: 1000,
+      weightDistribution: 0.6,
       wheelRadius: 0.31,
       gravity: 9.81,
       airResistance: 0.5,
@@ -160,7 +167,7 @@ class Engine {
   engine: engine;
   constructor() {
     this.engine = {
-      maxHP: 600,
+      maxHP: 60000,
       minHP: 40,
       maxRPM: 8800,
       minRPM: 800,
@@ -312,11 +319,13 @@ class Kinematics {
       currentAirResistance: 0,
       currentRollingResistance: 0,
       currentWheelRPM: 0,
+      frontDownforce: 0,
+      rearDownforce: 0,
     };
     this.physics = physics;
     this.engine = engine;
     this.gearbox = gearbox;
-    this.Tyres = new Tyres();
+    this.Tyres = new Tyres(this.kinematics);
   }
 
   updateKinematics() {
@@ -332,6 +341,8 @@ class Kinematics {
     // console.log(this.kinematics.currentAcceleration);
     this.kinematics.currentSpeed = this.updateSpeed();
     this.kinematics.currentWheelRPM = this.getWheelRPM();
+    this.kinematics.frontDownforce = this.getFrontDownforce();
+    this.kinematics.rearDownforce = this.getRearDownforce();
   }
 
   getWheelSpeed() {
@@ -352,7 +363,9 @@ class Kinematics {
   }
 
   getRollingResistance() {
-    return 0.005 * this.physics.weight * this.physics.gravity;
+    return this.kinematics.currentSpeed > 0
+      ? 0.005 * this.physics.weight * this.physics.gravity
+      : 0;
   }
 
   getAirResistance() {
@@ -369,8 +382,12 @@ class Kinematics {
     );
   }
 
-  getDownForce() {
-    return 0;
+  getFrontDownforce() {
+    return Math.pow(this.kinematics.currentSpeed, 2) * 0.2;
+  }
+
+  getRearDownforce() {
+    return Math.pow(this.kinematics.currentSpeed, 2) * 0.3;
   }
 
   updateSpeed() {
@@ -382,31 +399,71 @@ class Kinematics {
 }
 class Tyres {
   tyres: {
-    front: tyres;
-    rear: tyres;
+    front: {
+      left: tyre;
+      right: tyre;
+    };
+    rear: {
+      left: tyre;
+      right: tyre;
+      finalForce: number;
+    };
   };
-  constructor() {
+  kinematics: kinematics;
+  constructor(kinematics: kinematics) {
     this.tyres = {
       front: {
-        currentRPM: 0,
-        currentForce: 0,
-        maxForce: 6000,
+        left: {
+          currentForce: [0, 0],
+          weight: 0,
+          downforce: 0,
+          grip: 0.5,
+          width: 0.225,
+          finalForce: 0,
+        },
+        right: {
+          currentForce: [0, 0],
+          weight: 0,
+          downforce: 0,
+          grip: 0.5,
+          width: 0.225,
+          finalForce: 0,
+        },
       },
       rear: {
-        currentRPM: 0,
-        currentForce: 0,
-        maxForce: 7000,
+        left: {
+          currentForce: [0, 0],
+          weight: 0,
+          downforce: 0,
+          grip: 0.5,
+          width: 0.265,
+          finalForce: 0,
+        },
+        right: {
+          currentForce: [0, 0],
+          weight: 0,
+          downforce: 0,
+          grip: 0.5,
+          width: 0.265,
+          finalForce: 0,
+        },
+        finalForce: 0,
       },
     };
+    this.kinematics = kinematics;
   }
 
-  updateTyres(downforce: number) {
-    this.tyres.front.maxForce = this.tyres.front.maxForce * downforce;
-    this.tyres.rear.maxForce = this.tyres.rear.maxForce * downforce;
+  updateTyres(engineForce: number, downforce: number[]) {
+    this.tyres.rear.finalForce = this.getRearGrip(engineForce);
+  }
+
+  getRearGrip(engineForce: number) {
+    this.tyres.rear.left.downforce;
+    return 0;
   }
 
   checkRearGrip(force: number) {
-    if (force > this.tyres.rear.maxForce) {
+    if (force > this.tyres.rear.left.finalForce) {
       return force;
     } else {
       return force;
