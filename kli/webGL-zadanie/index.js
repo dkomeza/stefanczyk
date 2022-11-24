@@ -1,28 +1,17 @@
 const express = require("express");
-const fs = require("fs");
 const app = express();
 const PORT = 3000;
 
-app.use(express.static("static"));
-app.use(express.static("static/pages"));
+const data = require("./app/data/tanks.json");
 
-app.get("/pages", function (req, res) {
-  fs.readdir(
-    `${__dirname}/static/pages`,
-    { withFileTypes: true },
-    function (err, files) {
-      if (err) {
-        return console.log(err);
-      }
-      res.setHeader("content-type", "application/json");
-      const filesNames = files
-        .filter((dirent) => dirent.isFile())
-        .map((dirent) => dirent.name);
-      res.send(filesNames);
-    }
-  );
+app.use(express.static("app/"));
+
+app.get("/data", function (req, res) {
+  if (data[req.query.tank]) {
+    res.send(JSON.stringify(data[req.query.tank]));
+  }
 });
 
-app.listen(PORT, () => {
-  console.log("Start serwera");
+app.listen(PORT, function () {
+  console.log("Supcio");
 });
