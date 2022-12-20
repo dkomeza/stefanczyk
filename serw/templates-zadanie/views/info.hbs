@@ -1,28 +1,36 @@
+<nav>
+  <ul>
+    <li><a class="nav-link" href="/">UPLOAD</a></li>
+    <li><a class="nav-link" href="/files">FILEMANAGER</a></li>
+    <li class="active"><a class="nav-link" href="/info">INFO</a></li>
+    <div class="hover-background"></div>
+  </ul>
+</nav>
 {{#if id}}
-<ul>
+  <ul>
     <li>
-        <span>id: </span>
-        <span>{{id}}</span>
+      <span>id: </span>
+      <span>{{id}}</span>
     </li>
     <li>
-        <span>name: </span>
-        <span>{{name}}</span>
+      <span>name: </span>
+      <span>{{name}}</span>
     </li>
     <li>
-        <span>path: </span>
-        <span>{{path}}</span>
+      <span>path: </span>
+      <span>{{path}}</span>
     </li>
     <li>
-        <span>size: </span>
-        <span>{{size}}</span>
+      <span>size: </span>
+      <span>{{size}}</span>
     </li>
     <li>
-        <span>type: </span>
-        <span>{{type}}</span>
+      <span>type: </span>
+      <span>{{type}}</span>
     </li>
     <li>
-        <span>savedate: </span>
-        <span>{{time}}</span>
+      <span>savedate: </span>
+      <span>{{time}}</span>
     </li>
-</ul>
+  </ul>
 {{/if}}

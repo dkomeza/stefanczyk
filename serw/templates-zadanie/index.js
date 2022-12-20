@@ -19,21 +19,31 @@ app.get("/", function (req, res) {
   res.render("upload.hbs");
 });
 
-app.post("/upload", function (req, res) {
-  let form = formidable({});
-  form.keepExtensions = true;
-  form.multiples = true;
+app.get("/beta", function (req, res) {
+  res.render("betaUpload.hbs", { layout: "beta.hbs" });
+});
 
-  form.uploadDir = __dirname + "/static/upload/"; // folder do zapisu zdjęcia
+app.post("/upload", function (req, res) {
+  let form = formidable({
+    keepExtensions: true,
+    uploadDir: path.join(__dirname, "static", "uploads"),
+    multiples: true,
+  });
 
   form.parse(req, function (err, fields, files) {
     console.log();
     if (files.files.length) {
       for (let i = 0; i < files.files.length; i++) {
+        let size =
+          files.files[i].size > 1_048_576
+            ? (files.files[i].size / 1_048_576).toFixed(2) + " MB"
+            : files.files[i].size > 1024
+            ? (files.files[i].size / 1024).toFixed(2) + " KB"
+            : files.files[i].size + " B";
         filesArr.push({
           id: currentID,
           name: files.files[i].name,
-          size: files.files[i].size,
+          size: size,
           type: files.files[i].type,
           path: files.files[i].path,
           time: new Date().getTime(),
@@ -41,17 +51,23 @@ app.post("/upload", function (req, res) {
         currentID++;
       }
     } else {
+      let size =
+        files.files.size > 1_048_576
+          ? (files.files.size / 1_048_576).toFixed(2) + " MB"
+          : files.files.size > 1024
+          ? (files.files.size / 1024).toFixed(2) + " KB"
+          : files.files.size + " B";
       filesArr.push({
         id: currentID,
         name: files.files.name,
-        size: files.files.size,
+        size: size,
         type: files.files.type,
         path: files.files.path,
         time: new Date().getTime(),
       });
       currentID++;
     }
-    res.redirect("/");
+    res.redirect("/files");
   });
 });
 
@@ -60,7 +76,11 @@ app.get("/files", function (req, res) {
 });
 
 app.get("/download", function (req, res) {
-  res.download(req.query.path);
+  filesArr.forEach((file) => {
+    if (file.id == req.query.id) {
+      res.download(file.path);
+    }
+  });
 });
 
 app.get("/delete", function (req, res) {
@@ -72,7 +92,11 @@ app.get("/delete", function (req, res) {
 });
 
 app.get("/show", function (req, res) {
-  res.sendFile(req.query.path);
+  filesArr.forEach((file) => {
+    if (file.id == req.query.id) {
+      res.sendFile(file.path);
+    }
+  });
 });
 
 app.get("/info", function (req, res) {

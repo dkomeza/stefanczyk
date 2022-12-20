@@ -1,0 +1,32 @@
+<nav>
+  <ul>
+    <li class="active"><a class="nav-link" href="/beta">UPLOAD</a></li>
+    <li><a class="nav-link" href="/betaFiles">FILEMANAGER</a></li>
+    <li><a class="nav-link" href="/betaInfo">INFO</a></li>
+    <div class="hover-background"></div>
+  </ul>
+  <span>Beta</span>
+</nav>
+<main class="upload">
+  <aside>
+    <p>
+      <img src="img/multiupload.png" alt="" /><span>multiupload</span>
+    </p>
+    <div class="info-card">
+      <div class="img-wrapper"><img src="img/info.png" alt="" /></div>
+      <h2>Info Card</h2>
+      <p>A sample info card with link to some article</p>
+      <div class="btn"><a href="/">Stable</a></div>
+    </div>
+
+  </aside>
+  <div class="content">
+    <form action="/upload" method="post" enctype="multipart/form-data">
+      <input type="file" multiple required accept="" name="files" id="files" />
+      <button type="submit">Submit</button>
+    </form>
+  </div>
+</main>
+
+<script src="/js/upload.js">
+</script>

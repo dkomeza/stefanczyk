@@ -1,0 +1,199 @@
+@import url(https://fonts.googleapis.com/css?family=Baloo+2:regular,500,600,700,800);
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+}
+
+body {
+  min-height: 100vh;
+  width: 100vw;
+  font-family: "Baloo 2", sans-serif;
+  background-color: rgb(19, 21, 30);
+  display: flex;
+  flex-direction: column;
+}
+
+nav {
+  width: 100vw;
+  position: relative;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding-right: 64px;
+}
+
+nav > span {
+  font-size: 24px;
+  font-weight: bold;
+  color: white;
+}
+
+nav ul {
+  display: flex;
+  flex-direction: row;
+  list-style-type: none;
+  padding: 0;
+}
+
+nav ul li {
+  z-index: 1000;
+}
+
+nav ul li .nav-link {
+  display: block;
+  text-decoration: none;
+  color: white;
+  font-weight: bold;
+  font-size: 20px;
+  text-align: center;
+  width: 180px;
+  padding: 20px;
+  z-index: 1000;
+  cursor: pointer;
+}
+
+.hover-background {
+  position: absolute;
+  top: 50%;
+  transform: translateY(-50%);
+  left: 10px;
+  border-radius: 16px;
+  width: 160px;
+  height: 40px;
+  background-color: #5c85e6;
+  box-shadow: 0px 4px 4px rgba(0, 0, 0, 0.25);
+  transition: 0.3s;
+  user-select: none;
+  pointer-events: none;
+}
+
+nav ul li:nth-child(1).active ~ .hover-background {
+  left: 10px;
+}
+nav ul li:nth-child(2).active ~ .hover-background {
+  left: 190px;
+}
+nav ul li:nth-child(3).active ~ .hover-background {
+  left: calc(180px * 2 + 10px);
+}
+
+nav ul li:nth-child(1):hover ~ .hover-background {
+  left: 10px;
+}
+nav ul li:nth-child(2):hover ~ .hover-background {
+  left: 190px;
+}
+nav ul li:nth-child(3):hover ~ .hover-background {
+  left: calc(180px * 2 + 10px);
+}
+
+main {
+  padding: 16px;
+  padding-top: 0;
+  padding-left: 0;
+  height: 100%;
+  display: flex;
+  flex-grow: 1;
+  align-items: stretch;
+  overflow: hidden;
+}
+
+main aside {
+  position: relative;
+  width: 300px;
+  padding: 20px 16px;
+}
+
+main aside p {
+  margin-left: 8px;
+  display: flex;
+  align-items: center;
+}
+
+main aside p span {
+  margin-left: 8px;
+  font-size: 20px;
+  color: white;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 2px;
+}
+
+main aside .info-card {
+  position: absolute;
+  width: 260px;
+  background: #181818;
+  border-radius: 16px;
+  padding: 16px;
+  padding-top: 48px;
+  padding-bottom: 32px;
+  bottom: 48px;
+  color: white;
+}
+
+main aside .info-card .img-wrapper {
+  position: relative;
+}
+
+main aside .info-card .img-wrapper img {
+  width: 280px;
+  position: absolute;
+  top: 0;
+  left: -21px;
+  transform: translateY(-100%);
+}
+
+main aside .info-card h2 {
+  font-size: 24px;
+  font-weight: 700;
+  margin-bottom: 8px;
+  text-align: center;
+}
+
+main aside .info-card p {
+  font-size: 16px;
+  text-align: center;
+  padding: 0px 4px 16px 4px;
+}
+
+main aside .info-card .btn a {
+  display: block;
+  margin: 0 auto;
+  width: 75%;
+  text-align: center;
+  padding: 8px;
+  border-radius: 8px;
+  background: #5c85e6;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+  margin-top: 16px;
+  color: white;
+  font-weight: 700;
+  font-size: 16px;
+  text-decoration: none;
+  transition: 0.2s;
+}
+
+main aside .info-card .btn a:hover {
+  width: 85%;
+}
+
+.upload .content {
+  background-color: #0b0d11;
+  border-radius: 24px;
+  padding: 24px;
+  flex-grow: 1;
+}
+
+input[type="file"] {
+  color: white;
+}
+.custom-file-upload {
+  border: 1px solid #ccc;
+  display: inline-block;
+  padding: 6px 12px;
+  cursor: pointer;
+}
