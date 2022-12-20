@@ -181,9 +181,88 @@ main aside .info-card .btn a:hover {
 input[type="file"] {
   color: white;
 }
+
 .custom-file-upload {
   border: 1px solid #ccc;
   display: inline-block;
   padding: 6px 12px;
   cursor: pointer;
+}
+
+.files .content {
+  background-color: #0b0d11;
+  border-radius: 24px;
+  padding: 24px;
+  flex-grow: 1;
+}
+
+.files .content table {
+  width: 100%;
+  overflow: hidden;
+  border-spacing: 0;
+  background-color: #12151b;
+  border-radius: 16px 16px 8px 8px;
+}
+
+.files .content th {
+  color: white;
+  font-weight: 700;
+  font-size: 24px;
+  padding: 8px;
+  text-align: left;
+}
+
+.files .content th:nth-child(6),
+.files .content td:nth-child(6),
+.files .content th:nth-child(7),
+.files .content td:nth-child(7),
+.files .content th:nth-child(8),
+.files .content td:nth-child(8),
+.files .content th:nth-child(9),
+.files .content td:nth-child(9) {
+  text-align: center;
+}
+
+.files .content td {
+  color: white;
+  font-size: 16px;
+  padding: 8px;
+  text-align: left;
+}
+
+.files .content td a {
+  color: white;
+  text-decoration: none;
+  font-weight: 700;
+  font-size: 16px;
+  transition: 0.2s;
+}
+
+.files .content td a:hover {
+  color: #5c85e6;
+}
+
+.files .content th:first-child {
+  text-align: center;
+}
+
+.files .content td:first-child {
+  text-align: center;
+}
+
+.files .content tr {
+  background-color: #252a35;
+}
+
+.files .content tr:nth-child(2n) {
+  background-color: #161a22;
+}
+
+.files .content .header {
+  background-color: #12151b;
+  border-bottom: 50px solid #0b0d11;
+}
+
+.files .content .header th {
+  border-bottom: 4px solid #0b0d11;
 }

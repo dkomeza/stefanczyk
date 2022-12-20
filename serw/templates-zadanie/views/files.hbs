@@ -18,30 +18,32 @@
       <div class="btn"><a href="">Beta</a></div>
     </div>
   </aside>
-  <table>
-    <tr>
-      <th>id</th>
-      <th>ikona</th>
-      <th>name</th>
-      <th>size</th>
-      <th>type</th>
-      <th>-</th>
-      <th>-</th>
-      <th>-</th>
-      <th>-</th>
-    </tr>
-    {{#each context}}
-      <tr>
-        <td>{{id}}</td>
-        <td>Super</td>
-        <td>{{name}}</td>
-        <td>{{size}}</td>
-        <td>{{type}}</td>
-        <td><a href="/show?id={{id}}" target="_blank">SHOW</a></td>
-        <td><a href="/info?id={{id}}">INFO</a></td>
-        <td><a href="/download?id={{id}}" download>DOWNLOAD</a></td>
-        <td><a href="/delete?id={{id}}">DELETE</a></td>
+  <div class="content">
+    <table>
+      <tr class="header">
+        <th>id</th>
+        <th>icon</th>
+        <th>name</th>
+        <th>size</th>
+        <th>type</th>
+        <th>-</th>
+        <th>-</th>
+        <th>-</th>
+        <th>-</th>
       </tr>
-    {{/each}}
-  </table>
+      {{#each context}}
+        <tr>
+          <td>{{id}}</td>
+          <td>Super</td>
+          <td>{{name}}</td>
+          <td>{{size}}</td>
+          <td>{{type}}</td>
+          <td><a href="/show?id={{id}}" target="_blank">SHOW</a></td>
+          <td><a href="/info?id={{id}}">INFO</a></td>
+          <td><a href="/download?id={{id}}" download>DOWNLOAD</a></td>
+          <td><a href="/delete?id={{id}}">DELETE</a></td>
+        </tr>
+      {{/each}}
+    </table>
+  </div>
 </main>
