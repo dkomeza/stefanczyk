@@ -111,7 +111,7 @@ main aside p span {
 }
 
 main aside .info-card {
-  position: absolute;
+  position: fixed;
   width: 260px;
   background: #181818;
   border-radius: 16px;
@@ -230,6 +230,10 @@ input[type="file"] {
   text-align: left;
 }
 
+.files .content td img {
+  height: 48px;
+}
+
 .files .content td a {
   color: white;
   text-decoration: none;
@@ -265,4 +269,52 @@ input[type="file"] {
 
 .files .content .header th {
   border-bottom: 4px solid #0b0d11;
+}
+
+.info .content {
+  background-color: #0b0d11;
+  border-radius: 24px;
+  padding: 24px;
+  flex-grow: 1;
+  display: flex;
+  justify-content: center;
+}
+
+.info .content h2 {
+  display: flex;
+  align-items: center;
+  font-size: 32px;
+  justify-content: center;
+  height: 100%;
+  color: white;
+  text-transform: capitalize;
+}
+
+.info .content table {
+  margin-top: 32px;
+  height: max-content;
+  background-color: #12151b;
+  border-radius: 16px;
+  border-spacing: 0;
+  overflow: hidden;
+}
+
+.info .content table tr:nth-child(2n) {
+  background-color: #252a35;
+}
+
+.info .content table th {
+  color: white;
+  font-weight: 700;
+  font-size: 24px;
+  padding: 8px 16px;
+  text-align: left;
+}
+
+.info .content table td {
+  color: white;
+  font-size: 16px;
+  padding: 8px;
+  text-align: left;
+  padding-right: 16px;
 }

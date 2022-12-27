@@ -6,31 +6,50 @@
     <div class="hover-background"></div>
   </ul>
 </nav>
-{{#if id}}
-  <ul>
-    <li>
-      <span>id: </span>
-      <span>{{id}}</span>
-    </li>
-    <li>
-      <span>name: </span>
-      <span>{{name}}</span>
-    </li>
-    <li>
-      <span>path: </span>
-      <span>{{path}}</span>
-    </li>
-    <li>
-      <span>size: </span>
-      <span>{{size}}</span>
-    </li>
-    <li>
-      <span>type: </span>
-      <span>{{type}}</span>
-    </li>
-    <li>
-      <span>savedate: </span>
-      <span>{{time}}</span>
-    </li>
-  </ul>
-{{/if}}
+
+<main class="info">
+  <aside>
+    <p>
+      <img src="img/multiupload.png" alt="" /><span>file info</span>
+    </p>
+    <div class="info-card">
+      <div class="img-wrapper"><img src="img/info.png" alt="" /></div>
+      <h2>Info Card</h2>
+      <p>A sample info card with link to some article</p>
+      <div class="btn"><a href="">Beta</a></div>
+    </div>
+  </aside>
+  <div class="content">
+    {{#if id}}
+      <table>
+        <tr>
+          <th>id</th>
+          <td>{{id}}</td>
+        </tr>
+        <tr>
+          <th>name</th>
+          <td>{{name}}</td>
+        </tr>
+        <tr>
+          <th>path</th>
+          <td>{{path}}</td>
+        </tr>
+        <tr>
+          <th>size</th>
+          <td>{{size}}</td>
+        </tr>
+        <tr>
+          <th>type</th>
+          <td>{{type}}</td>
+        </tr>
+        <tr>
+          <th>savedate</th>
+          <td>{{time}}</td>
+        </tr>
+      </table>
+    {{else}}
+      <h2>no file selected</p>
+    {{/if}}
+
+  </div>
+</main>
