@@ -318,3 +318,20 @@ input[type="file"] {
   text-align: left;
   padding-right: 16px;
 }
+
+.delete-all {
+  display: block;
+  padding: 12px 16px;
+  background-color: #12151b;
+  width: max-content;
+  border-radius: 16px;
+  color: white;
+  text-decoration: none;
+  position: fixed;
+  right: 32px;
+  bottom: 40px;
+  transition: 0.4s;
+}
+.delete-all:hover {
+  background-color: #252a35;
+}

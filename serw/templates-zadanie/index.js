@@ -513,6 +513,11 @@ app.get("/delete", function (req, res) {
   res.redirect("/files");
 });
 
+app.get("/deleteAll", function (req, res) {
+  filesArr.splice(0, filesArr.length);
+  res.redirect("/files");
+})
+
 app.get("/show", function (req, res) {
   filesArr.forEach((file) => {
     if (file.id == req.query.id) {
