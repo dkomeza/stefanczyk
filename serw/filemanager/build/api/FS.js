@@ -1,0 +1,644 @@
+"use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
+Object.defineProperty(exports, "__esModule", { value: true });
+const fs = __importStar(require("fs"));
+const fileTypes = [
+    "3g2",
+    "3ga",
+    "3gp",
+    "7z",
+    "aa",
+    "aac",
+    "ac",
+    "accdb",
+    "accdt",
+    "ace",
+    "adn",
+    "ai",
+    "aif",
+    "aifc",
+    "aiff",
+    "ait",
+    "amr",
+    "ani",
+    "apk",
+    "app",
+    "applescript",
+    "asax",
+    "asc",
+    "ascx",
+    "asf",
+    "ash",
+    "ashx",
+    "asm",
+    "asmx",
+    "asp",
+    "aspx",
+    "asx",
+    "au",
+    "aup",
+    "avi",
+    "axd",
+    "aze",
+    "bak",
+    "bash",
+    "bat",
+    "bin",
+    "blank",
+    "bmp",
+    "bowerrc",
+    "bpg",
+    "browser",
+    "bz2",
+    "bzempty",
+    "c",
+    "cab",
+    "cad",
+    "caf",
+    "cal",
+    "cd",
+    "cdda",
+    "cer",
+    "cfg",
+    "cfm",
+    "cfml",
+    "cgi",
+    "chm",
+    "class",
+    "cmd",
+    "code-workspace",
+    "codekit",
+    "coffee",
+    "coffeelintignore",
+    "com",
+    "compile",
+    "conf",
+    "config",
+    "cpp",
+    "cptx",
+    "cr2",
+    "crdownload",
+    "crt",
+    "crypt",
+    "cs",
+    "csh",
+    "cson",
+    "csproj",
+    "css",
+    "csv",
+    "cue",
+    "cur",
+    "dart",
+    "dat",
+    "data",
+    "db",
+    "dbf",
+    "deb",
+    "dgn",
+    "dist",
+    "diz",
+    "dll",
+    "dmg",
+    "dng",
+    "doc",
+    "docb",
+    "docm",
+    "docx",
+    "dot",
+    "dotm",
+    "dotx",
+    "download",
+    "dpj",
+    "ds_store",
+    "dsn",
+    "dtd",
+    "dwg",
+    "dxf",
+    "editorconfig",
+    "el",
+    "elf",
+    "eml",
+    "enc",
+    "eot",
+    "eps",
+    "epub",
+    "eslintignore",
+    "exe",
+    "f4v",
+    "fax",
+    "fb2",
+    "fla",
+    "flac",
+    "flv",
+    "fnt",
+    "folder",
+    "fon",
+    "gadget",
+    "gdp",
+    "gem",
+    "gif",
+    "gitattributes",
+    "gitignore",
+    "go",
+    "gpg",
+    "gpl",
+    "gradle",
+    "gz",
+    "h",
+    "handlebars",
+    "hbs",
+    "heic",
+    "hlp",
+    "hs",
+    "hsl",
+    "htm",
+    "html",
+    "ibooks",
+    "icns",
+    "ico",
+    "ics",
+    "idx",
+    "iff",
+    "ifo",
+    "image",
+    "img",
+    "iml",
+    "in",
+    "inc",
+    "indd",
+    "inf",
+    "info",
+    "ini",
+    "inv",
+    "iso",
+    "j2",
+    "jar",
+    "java",
+    "jpe",
+    "jpeg",
+    "jpg",
+    "js",
+    "json",
+    "jsp",
+    "jsx",
+    "key",
+    "kf8",
+    "kmk",
+    "ksh",
+    "kt",
+    "kts",
+    "kup",
+    "less",
+    "lex",
+    "licx",
+    "lisp",
+    "lit",
+    "lnk",
+    "lock",
+    "log",
+    "lua",
+    "m",
+    "m2v",
+    "m3u",
+    "m3u8",
+    "m4",
+    "m4a",
+    "m4r",
+    "m4v",
+    "map",
+    "master",
+    "mc",
+    "md",
+    "mdb",
+    "mdf",
+    "me",
+    "mi",
+    "mid",
+    "midi",
+    "mk",
+    "mkv",
+    "mm",
+    "mng",
+    "mo",
+    "mobi",
+    "mod",
+    "mov",
+    "mp2",
+    "mp3",
+    "mp4",
+    "mpa",
+    "mpd",
+    "mpe",
+    "mpeg",
+    "mpg",
+    "mpga",
+    "mpp",
+    "mpt",
+    "msg",
+    "msi",
+    "msu",
+    "nef",
+    "nes",
+    "nfo",
+    "nix",
+    "npmignore",
+    "ocx",
+    "odb",
+    "ods",
+    "odt",
+    "ogg",
+    "ogv",
+    "ost",
+    "otf",
+    "ott",
+    "ova",
+    "ovf",
+    "p12",
+    "p7b",
+    "pages",
+    "part",
+    "pcd",
+    "pdb",
+    "pdf",
+    "pem",
+    "pfx",
+    "pgp",
+    "ph",
+    "phar",
+    "php",
+    "pid",
+    "pkg",
+    "pl",
+    "plist",
+    "pm",
+    "png",
+    "po",
+    "pom",
+    "pot",
+    "potx",
+    "pps",
+    "ppsx",
+    "ppt",
+    "pptm",
+    "pptx",
+    "prop",
+    "ps",
+    "ps1",
+    "psd",
+    "psp",
+    "pst",
+    "pub",
+    "py",
+    "pyc",
+    "qt",
+    "ra",
+    "ram",
+    "rar",
+    "raw",
+    "rb",
+    "rdf",
+    "rdl",
+    "reg",
+    "resx",
+    "retry",
+    "rm",
+    "rom",
+    "rpm",
+    "rpt",
+    "rsa",
+    "rss",
+    "rst",
+    "rtf",
+    "ru",
+    "rub",
+    "sass",
+    "scss",
+    "sdf",
+    "sed",
+    "sh",
+    "sit",
+    "sitemap",
+    "skin",
+    "sldm",
+    "sldx",
+    "sln",
+    "sol",
+    "sphinx",
+    "sql",
+    "sqlite",
+    "step",
+    "stl",
+    "svg",
+    "swd",
+    "swf",
+    "swift",
+    "swp",
+    "sys",
+    "tar",
+    "tax",
+    "tcsh",
+    "tex",
+    "tfignore",
+    "tga",
+    "tgz",
+    "tif",
+    "tiff",
+    "tmp",
+    "tmx",
+    "torrent",
+    "tpl",
+    "ts",
+    "tsv",
+    "ttf",
+    "twig",
+    "txt",
+    "udf",
+    "vb",
+    "vbproj",
+    "vbs",
+    "vcd",
+    "vcf",
+    "vcs",
+    "vdi",
+    "vdx",
+    "vmdk",
+    "vob",
+    "vox",
+    "vscodeignore",
+    "vsd",
+    "vss",
+    "vst",
+    "vsx",
+    "vtx",
+    "war",
+    "wav",
+    "wbk",
+    "webinfo",
+    "webm",
+    "webp",
+    "wma",
+    "wmf",
+    "wmv",
+    "woff",
+    "woff2",
+    "wps",
+    "wsf",
+    "xaml",
+    "xcf",
+    "xfl",
+    "xlm",
+    "xls",
+    "xlsm",
+    "xlsx",
+    "xlt",
+    "xltm",
+    "xltx",
+    "xml",
+    "xpi",
+    "xps",
+    "xrb",
+    "xsd",
+    "xsl",
+    "xspf",
+    "xz",
+    "yaml",
+    "yml",
+    "z",
+    "zip",
+    "zsh",
+];
+class FS {
+    saveFiles(username, files) {
+        const userHomeDirectory = `./uploads/${username}`;
+        this.handleUserDirectory(userHomeDirectory);
+        files.forEach((file) => {
+            let destinationName = this.checkExitsUpload(userHomeDirectory, file.originalFilename);
+            if (!destinationName)
+                return;
+            fs.copyFileSync(`./temp/${file.newFilename}`, `${destinationName}`);
+            fs.rmSync(`./temp/${file.newFilename}`);
+        });
+    }
+    getFiles(username, directory) {
+        let userHomeDirectory = `./uploads/${username}`;
+        this.handleUserDirectory(userHomeDirectory);
+        if (directory) {
+            userHomeDirectory = `${userHomeDirectory}/${directory}`;
+        }
+        if (!fs.existsSync(userHomeDirectory)) {
+            return { files: [], folders: [] };
+        }
+        const files = fs.readdirSync(userHomeDirectory);
+        const fileArr = [];
+        const folderArr = [];
+        for (let i = 0; i < files.length; i++) {
+            const currentFile = `${userHomeDirectory}/${files[i]}`;
+            if (fs.statSync(currentFile).isDirectory()) {
+                folderArr.push({
+                    name: files[i],
+                    path: directory ? `${directory}/${files[i]}` : files[i],
+                    size: fs.statSync(currentFile).size,
+                });
+            }
+            else {
+                let ext = files[i].split(".").pop();
+                let icon;
+                if (fileTypes.includes(ext)) {
+                    icon = `${ext}.svg`;
+                }
+                else {
+                    icon = `default.svg`;
+                }
+                fileArr.push({
+                    name: files[i],
+                    size: fs.statSync(currentFile).size,
+                    modified: fs.statSync(currentFile).mtime,
+                    icon: icon,
+                });
+            }
+        }
+        return { files: fileArr, folders: folderArr };
+    }
+    getFile(username, directory, filename) {
+        let userHomeDirectory = `./uploads/${username}`;
+        this.handleUserDirectory(userHomeDirectory);
+        if (directory) {
+            userHomeDirectory = `${userHomeDirectory}/${directory}`;
+        }
+        if (!fs.existsSync(userHomeDirectory)) {
+            return { path: "" };
+        }
+        const filePath = userHomeDirectory + "/" + filename;
+        if (!fs.existsSync(filePath)) {
+            return { path: "" };
+        }
+        return { path: filePath };
+    }
+    createFolder(username, directory, folderName) {
+        if (!folderName)
+            return;
+        const userHomeDirectory = `./uploads/${username}`;
+        const path = directory
+            ? `${userHomeDirectory}/${directory}/${folderName}`
+            : `${userHomeDirectory}/${folderName}`;
+        if (!fs.existsSync(userHomeDirectory)) {
+            return;
+        }
+        let finalFolderName = this.checkExits(path);
+        if (!finalFolderName)
+            return;
+        fs.mkdirSync(`${finalFolderName}`);
+    }
+    delete(username, directory, name) {
+        const userHomeDirectory = `./uploads/${username}`;
+        const path = `${userHomeDirectory}/${directory}/${name}`;
+        if (!fs.existsSync(path)) {
+            return;
+        }
+        fs.rm(path, { recursive: true, force: true }, (err) => {
+            if (err) {
+                throw err;
+            }
+        });
+    }
+    rename(username, directory, oldname, newname) {
+        const userHomeDirectory = `./uploads/${username}`;
+        const path = `${userHomeDirectory}/${directory}/${oldname}`;
+        if (!fs.existsSync(path)) {
+            return;
+        }
+        const newPath = `${userHomeDirectory}/${directory}/${newname}`;
+        const finalPath = this.checkExits(newPath, path);
+        if (!finalPath)
+            return;
+        fs.rename(path, finalPath, (err) => {
+            if (err) {
+                throw err;
+            }
+        });
+    }
+    move(username, olddirectory, oldname, newdirectory, newname) {
+        const userHomeDirectory = `./uploads/${username}`;
+        const path = `${userHomeDirectory}/${olddirectory}/${oldname}`;
+        if (!fs.existsSync(path)) {
+            return;
+        }
+        const newPath = `${userHomeDirectory}/${newdirectory}/${newname}`;
+        const finalPath = this.checkExits(newPath, path);
+        console.log(path, finalPath);
+        if (!finalPath)
+            return;
+        fs.cpSync(path, finalPath, { recursive: true });
+        fs.rmSync(path, { recursive: true });
+    }
+    copy(username, olddirectory, oldname, newdirectory, newname) {
+        const userHomeDirectory = `./uploads/${username}`;
+        const path = `${userHomeDirectory}/${olddirectory}/${oldname}`;
+        if (!fs.existsSync(path)) {
+            return;
+        }
+        const newPath = `${userHomeDirectory}/${newdirectory}/${newname}`;
+        const finalPath = this.checkExits(newPath, path);
+        console.log(path, finalPath);
+        if (!finalPath)
+            return;
+        fs.cpSync(path, finalPath, { recursive: true });
+    }
+    info(username, directory, filename) {
+        const userHomeDirectory = `./uploads/${username}`;
+        const path = `${userHomeDirectory}/${directory}/${filename}`;
+        if (!fs.existsSync(path)) {
+            return;
+        }
+        const result = fs.statSync(path);
+        const response = {
+            name: filename,
+            size: result.isDirectory() ? this.getDirectorySize(path) : result.size,
+            modified: result.mtime,
+        };
+        return response;
+    }
+    getDirectorySize(path) {
+        const files = fs.readdirSync(path);
+        const stats = files.map((file) => fs.statSync(`${path}/${file}`));
+        let sum = 0;
+        for (let i = 0; i < stats.length; i++) {
+            sum += stats[i].size;
+        }
+        return sum;
+    }
+    handleUserDirectory(userHomeDirectory) {
+        const homeDirectoryExits = fs.existsSync(userHomeDirectory);
+        if (!homeDirectoryExits) {
+            fs.mkdirSync(userHomeDirectory);
+        }
+    }
+    checkExitsUpload(path, file) {
+        let currentIterator = 1;
+        const fileName = file.split(".")[0];
+        const fileExt = file.split(".").splice(1).join(".");
+        while (true) {
+            if (!fs.existsSync(`${path}/${fileName}.${fileExt}`)) {
+                return `${path}/${fileName}.${fileExt}`;
+            }
+            if (!fs.existsSync(`${path}/${fileName} (${currentIterator}).${fileExt}`)) {
+                return `${path}/${fileName} (${currentIterator}).${fileExt}`;
+            }
+            if (currentIterator > 1000) {
+                return;
+            }
+            currentIterator++;
+        }
+    }
+    checkExits(path, oldPath) {
+        let filename;
+        let ext = "";
+        if (oldPath) {
+            if (!fs.statSync(oldPath).isDirectory()) {
+                const splitPath = path.split(".");
+                ext = "." + splitPath[splitPath.length - 1];
+                splitPath.pop();
+                filename = splitPath.join(".");
+            }
+            else {
+                filename = path;
+            }
+        }
+        let currentIterator = 1;
+        while (true) {
+            if (!fs.existsSync(`${filename}${ext}`)) {
+                return `${filename}${ext}`;
+            }
+            if (!fs.existsSync(`${filename} (${currentIterator})${ext}`)) {
+                return `${filename} (${currentIterator})${ext}`;
+            }
+            if (currentIterator > 1000) {
+                return;
+            }
+            currentIterator++;
+        }
+    }
+}
+exports.default = new FS();

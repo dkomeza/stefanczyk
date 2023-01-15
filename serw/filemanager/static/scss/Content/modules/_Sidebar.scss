@@ -1,0 +1,8 @@
+@use "../../variables" as *;
+
+.sidebar {
+  border-left: 1px solid $text-tertiary;
+  * {
+    color: $text-primary !important;
+  }
+}

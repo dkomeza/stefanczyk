@@ -1,0 +1,15 @@
+@use "./variables" as *;
+@import url(https://fonts.googleapis.com/css?family=Baloo+2:regular,500,600,700,800);
+
+* {
+  box-sizing: border-box;
+  margin: 0;
+  font-family: "Baloo 2", sans-serif;
+  color: $text-primary;
+}
+
+body {
+  padding: 0;
+  background-color: $background-primary;
+  overflow-x: hidden;
+}

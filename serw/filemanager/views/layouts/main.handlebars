@@ -1,0 +1,63 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Filemanager</title>
+    <link rel="stylesheet" href="/scss/index.css" />
+    <link rel="stylesheet" href="/scss/Content/Main.css" />
+
+    <link rel="shortcut icon" href="/img/logo.webp" type="image/x-icon" />
+
+    <script src="/js/build/bundle.js" type="module"></script>
+  </head>
+  <body>
+    <script>0</script>
+    <aside class="navbar">
+      <h1>
+        <img src="/img/logo.webp" alt="" id="logo" />
+      </h1>
+      <nav>
+        <ul class="navbar-list">
+          <li class="dashboard">
+            <a href="/">
+              <img src="/img/menu_icons/dashboard.png" alt="" />
+            </a>
+          </li>
+          <li class="files">
+            <a href="/files">
+              <img src="/img/menu_icons/folder.png" alt="" />
+            </a>
+          </li>
+          <li class="favourite">
+            <a href="/favourite">
+              <img src="/img/menu_icons/star.png" alt="" />
+            </a>
+          </li>
+          <li class="trash">
+            <a href="/trash">
+              <img src="/img/menu_icons/trash.png" alt="" />
+            </a>
+          </li>
+          <li class="settings">
+            <a href="/settings">
+              <img src="/img/menu_icons/settings.png" alt="" />
+            </a>
+          </li>
+        </ul>
+        <div class="hover-effect"></div>
+      </nav>
+    </aside>
+    <main class="root">
+      {{{body}}}
+    </main>
+    <aside class="sidebar">
+      <h2>OCloud Storage</h2>
+      <div class="storage"></div>
+      <div class="size"></div>
+      <div class="upload">
+        <input type="file" name="files" id="file-input" multiple />
+      </div>
+    </aside>
+  </body>
+</html>

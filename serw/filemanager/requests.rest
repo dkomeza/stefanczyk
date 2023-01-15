@@ -1,0 +1,96 @@
+POST https://filemanager.dawidkomeza.pl/api/signup
+content-Type: application/json
+
+{
+    "username": "test",
+    "password": "test"
+}
+
+###
+
+POST https://filemanager.dawidkomeza.pl/api/login
+content-Type: application/json
+
+{
+    "username": "test",
+    "password": "test"
+}
+
+###
+
+POST https://filemanager.dawidkomeza.pl/api/createFolder
+content-Type: application/json
+
+{
+    "username": "test",
+    "publicKey": "167606325ec7ebb011bdf87b691bb83d66b480e65cc89cd1210474e915d8e2aa6f4d28943fa9ca4fb60ddc409b2c7743c4152fc93482438ad1cd5a9f2d416ab4581bebecb0530112ed230725224b15c314563ee81d79ba39e0112bc3d424690b56aefcd32ba224af0bb82d75debcb4cc7bd515ba2f4e2e17b31887574ebe46115550ce4cc2dc3fb3f60f27a3774a15130163728ff348b3f790f1b3f702376eec02174ad7ce987669f06bdbbd8e42b9853c171a3fecd8b20fb549c924c160306c437c63846599cb46b3c63c177d0d3f5d55c00a418bb22919cf59263f4303ecaec00df523e0eba8839d3934ceb62a8fe8ad3c3a60f67e1293ea95cf724ac78bca",
+    "directory": "",
+    "foldername": "super"
+}
+
+###
+
+POST https://filemanager.dawidkomeza.pl/api/delete
+content-Type: application/json
+
+{
+    "username": "test",
+    "publicKey": "167606325ec7ebb011bdf87b691bb83d66b480e65cc89cd1210474e915d8e2aa6f4d28943fa9ca4fb60ddc409b2c7743c4152fc93482438ad1cd5a9f2d416ab4581bebecb0530112ed230725224b15c314563ee81d79ba39e0112bc3d424690b56aefcd32ba224af0bb82d75debcb4cc7bd515ba2f4e2e17b31887574ebe46115550ce4cc2dc3fb3f60f27a3774a15130163728ff348b3f790f1b3f702376eec02174ad7ce987669f06bdbbd8e42b9853c171a3fecd8b20fb549c924c160306c437c63846599cb46b3c63c177d0d3f5d55c00a418bb22919cf59263f4303ecaec00df523e0eba8839d3934ceb62a8fe8ad3c3a60f67e1293ea95cf724ac78bca",
+    "directory": "",
+    "filename": ""
+}
+
+###
+
+POST https://filemanager.dawidkomeza.pl/api/rename
+content-Type: application/json
+
+{
+    "username": "test",
+    "publicKey": "167606325ec7ebb011bdf87b691bb83d66b480e65cc89cd1210474e915d8e2aa6f4d28943fa9ca4fb60ddc409b2c7743c4152fc93482438ad1cd5a9f2d416ab4581bebecb0530112ed230725224b15c314563ee81d79ba39e0112bc3d424690b56aefcd32ba224af0bb82d75debcb4cc7bd515ba2f4e2e17b31887574ebe46115550ce4cc2dc3fb3f60f27a3774a15130163728ff348b3f790f1b3f702376eec02174ad7ce987669f06bdbbd8e42b9853c171a3fecd8b20fb549c924c160306c437c63846599cb46b3c63c177d0d3f5d55c00a418bb22919cf59263f4303ecaec00df523e0eba8839d3934ceb62a8fe8ad3c3a60f67e1293ea95cf724ac78bca",
+    "directory": "",
+    "oldname": "superpliczekXD.txt",
+    "newname": "superpliczek.txt"
+}
+
+###
+
+POST https://filemanager.dawidkomeza.pl/api/rename
+content-Type: application/json
+
+{
+    "username": "test",
+    "publicKey": "167606325ec7ebb011bdf87b691bb83d66b480e65cc89cd1210474e915d8e2aa6f4d28943fa9ca4fb60ddc409b2c7743c4152fc93482438ad1cd5a9f2d416ab4581bebecb0530112ed230725224b15c314563ee81d79ba39e0112bc3d424690b56aefcd32ba224af0bb82d75debcb4cc7bd515ba2f4e2e17b31887574ebe46115550ce4cc2dc3fb3f60f27a3774a15130163728ff348b3f790f1b3f702376eec02174ad7ce987669f06bdbbd8e42b9853c171a3fecd8b20fb549c924c160306c437c63846599cb46b3c63c177d0d3f5d55c00a418bb22919cf59263f4303ecaec00df523e0eba8839d3934ceb62a8fe8ad3c3a60f67e1293ea95cf724ac78bca",
+    "directory": "",
+    "oldname": "superpliczek2.txt",
+    "newname": "superpliczek1.txt"
+}
+
+###
+
+POST https://filemanager.dawidkomeza.pl/api/rename
+content-Type: application/json
+
+{
+    "username": "test",
+    "publicKey": "167606325ec7ebb011bdf87b691bb83d66b480e65cc89cd1210474e915d8e2aa6f4d28943fa9ca4fb60ddc409b2c7743c4152fc93482438ad1cd5a9f2d416ab4581bebecb0530112ed230725224b15c314563ee81d79ba39e0112bc3d424690b56aefcd32ba224af0bb82d75debcb4cc7bd515ba2f4e2e17b31887574ebe46115550ce4cc2dc3fb3f60f27a3774a15130163728ff348b3f790f1b3f702376eec02174ad7ce987669f06bdbbd8e42b9853c171a3fecd8b20fb549c924c160306c437c63846599cb46b3c63c177d0d3f5d55c00a418bb22919cf59263f4303ecaec00df523e0eba8839d3934ceb62a8fe8ad3c3a60f67e1293ea95cf724ac78bca",
+    "directory": "",
+    "oldname": "super (1)",
+    "newname": "super2"
+}
+
+###
+
+POST https://filemanager.dawidkomeza.pl/api/info
+content-Type: application/json
+
+{
+    "username": "test",
+    "publicKey": "167606325ec7ebb011bdf87b691bb83d66b480e65cc89cd1210474e915d8e2aa6f4d28943fa9ca4fb60ddc409b2c7743c4152fc93482438ad1cd5a9f2d416ab4581bebecb0530112ed230725224b15c314563ee81d79ba39e0112bc3d424690b56aefcd32ba224af0bb82d75debcb4cc7bd515ba2f4e2e17b31887574ebe46115550ce4cc2dc3fb3f60f27a3774a15130163728ff348b3f790f1b3f702376eec02174ad7ce987669f06bdbbd8e42b9853c171a3fecd8b20fb549c924c160306c437c63846599cb46b3c63c177d0d3f5d55c00a418bb22919cf59263f4303ecaec00df523e0eba8839d3934ceb62a8fe8ad3c3a60f67e1293ea95cf724ac78bca",
+    "directory": "",
+    "filename": "super2"
+}
+
+###
+
+GET https://filemanager.dawidkomeza.pl/api/status

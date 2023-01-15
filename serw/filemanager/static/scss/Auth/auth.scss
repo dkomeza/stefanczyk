@@ -1,0 +1,137 @@
+@use "../variables" as *;
+
+@import url(https://fonts.googleapis.com/css?family=Baloo+2:regular,500,600,700,800);
+
+@import "./modules/background";
+
+.login-page {
+  display: flex;
+  width: 100vw;
+  height: 100vh;
+  align-items: center;
+  background-color: $background-primary;
+  color: $text-primary;
+  font-family: "Baloo 2", sans-serif;
+  .login-container {
+    height: 100%;
+    background-color: $background-secondary;
+    width: max-content;
+    padding: 0 2rem;
+    overflow: hidden;
+    position: relative;
+    flex-grow: 1;
+    flex-shrink: 0;
+    display: none;
+    flex-direction: column;
+    justify-content: center;
+    .form-wrapper {
+      transform: translateY(-10%);
+      width: max-content;
+      margin: 0 auto;
+      img {
+        display: block;
+        margin: 0 auto;
+        width: 200px;
+      }
+      .form-container {
+        .login-button {
+          display: block;
+          width: 100%;
+          margin-top: 1.5rem;
+          border: 0;
+          outline: 0;
+          padding: 0.5rem 1rem;
+          border-radius: 1rem;
+          font-size: 1.4rem;
+          font-weight: 600;
+          line-height: 38px;
+          letter-spacing: 0.01em;
+          font-family: "Baloo 2", sans-serif;
+          color: #fafafa;
+          cursor: pointer;
+          transition: 0.3s;
+          background: linear-gradient(
+            180deg,
+            $accent-primary 0%,
+            $accent-secondary 100%
+          );
+          &:hover {
+            filter: drop-shadow(0 0 0.2rem $accent-primary);
+          }
+        }
+        .signup-wrapper {
+          margin: 0 auto;
+          margin-top: 0.5rem;
+          display: block;
+          width: max-content;
+          color: $text-tertiary;
+          font-weight: 600;
+          font-size: 1rem;
+          user-select: none;
+          a {
+            color: $accent-primary;
+            text-decoration: none;
+            transition: 0.2s;
+            &:hover {
+              color: $accent-secondary;
+            }
+          }
+        }
+        .social-login-wrapper {
+          display: flex;
+          flex-direction: column;
+          row-gap: 1rem;
+          margin-top: 1.5rem;
+          justify-content: space-around;
+          button {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            border: 0;
+            padding: 1rem;
+            border-radius: 1rem;
+            background-color: rgba(31, 31, 31, 0.5);
+            cursor: pointer;
+            transition: 0.3s;
+            &:hover {
+              background-color: rgba(40, 40, 40, 0.5);
+            }
+            img {
+              height: 2rem;
+              width: 2rem;
+              object-fit: contain;
+            }
+            span {
+              margin-left: 1rem;
+              font-size: 1.2rem;
+              font-weight: 600;
+              color: $text-tertiary;
+              font-family: "Baloo 2", sans-serif;
+            }
+          }
+        }
+      }
+      .input-wrapper {
+        border: 0;
+        display: flex;
+        flex-direction: column;
+        label {
+          color: $text-tertiary;
+          font-size: 16px;
+          user-select: none;
+        }
+        input {
+          width: 300px;
+          background: rgba(31, 31, 31, 0.5);
+          border-radius: 1rem;
+          border: 0;
+          outline: 0;
+          padding: 0.5rem 1rem;
+          color: $text-primary;
+          font-family: "Baloo 2", sans-serif;
+          font-size: 18px;
+        }
+      }
+    }
+  }
+}

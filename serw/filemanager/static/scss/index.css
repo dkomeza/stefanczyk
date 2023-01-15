@@ -1,0 +1,13 @@
+@import url(https://fonts.googleapis.com/css?family=Baloo+2:regular,500,600,700,800);
+* {
+  box-sizing: border-box;
+  margin: 0;
+  font-family: "Baloo 2", sans-serif;
+  color: #ffffff;
+}
+
+body {
+  padding: 0;
+  background-color: #0b0d11;
+  overflow-x: hidden;
+}/*# sourceMappingURL=index.css.map */
