@@ -1,4 +1,14 @@
-POST https://filemanager.dawidkomeza.pl/api/signup
+POST https://dev.dawidkomeza.pl/api/signup
+content-Type: application/json
+
+{
+    "username": "super",
+    "password": "super"
+}
+
+###
+
+POST https://dev.dawidkomeza.pl/api/login
 content-Type: application/json
 
 {
@@ -8,17 +18,7 @@ content-Type: application/json
 
 ###
 
-POST https://filemanager.dawidkomeza.pl/api/login
-content-Type: application/json
-
-{
-    "username": "test",
-    "password": "test"
-}
-
-###
-
-POST https://filemanager.dawidkomeza.pl/api/createFolder
+POST https://dev.dawidkomeza.pl/api/createFolder
 content-Type: application/json
 
 {
@@ -30,7 +30,7 @@ content-Type: application/json
 
 ###
 
-POST https://filemanager.dawidkomeza.pl/api/delete
+POST https://dev.dawidkomeza.pl/api/delete
 content-Type: application/json
 
 {
@@ -42,7 +42,7 @@ content-Type: application/json
 
 ###
 
-POST https://filemanager.dawidkomeza.pl/api/rename
+POST https://dev.dawidkomeza.pl/api/rename
 content-Type: application/json
 
 {
@@ -55,7 +55,7 @@ content-Type: application/json
 
 ###
 
-POST https://filemanager.dawidkomeza.pl/api/rename
+POST https://dev.dawidkomeza.pl/api/rename
 content-Type: application/json
 
 {
@@ -68,7 +68,7 @@ content-Type: application/json
 
 ###
 
-POST https://filemanager.dawidkomeza.pl/api/rename
+POST https://dev.dawidkomeza.pl/api/rename
 content-Type: application/json
 
 {
@@ -81,7 +81,7 @@ content-Type: application/json
 
 ###
 
-POST https://filemanager.dawidkomeza.pl/api/info
+POST https://dev.dawidkomeza.pl/api/info
 content-Type: application/json
 
 {
@@ -93,4 +93,4 @@ content-Type: application/json
 
 ###
 
-GET https://filemanager.dawidkomeza.pl/api/status
+GET https://dev.dawidkomeza.pl/api/status

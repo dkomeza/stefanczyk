@@ -419,12 +419,13 @@ const fileTypes = [
 ];
 
 class FS {
-  public saveFiles(username: string, files: File[]) {
+  public saveFiles(username: string, files: File[], directory: string) {
     const userHomeDirectory = `./uploads/${username}`;
     this.handleUserDirectory(userHomeDirectory);
+    const destinationDirectory = `${userHomeDirectory}/${directory}`;
     files.forEach((file) => {
       let destinationName = this.checkExitsUpload(
-        userHomeDirectory,
+        destinationDirectory,
         file.originalFilename!
       );
       if (!destinationName) return;
@@ -500,27 +501,41 @@ class FS {
   ) {
     if (!folderName) return;
     const userHomeDirectory = `./uploads/${username}`;
-    const path = directory
-      ? `${userHomeDirectory}/${directory}/${folderName}`
-      : `${userHomeDirectory}/${folderName}`;
     if (!fs.existsSync(userHomeDirectory)) {
       return;
     }
+    const path = directory
+      ? `${userHomeDirectory}/${directory}/${folderName}`
+      : `${userHomeDirectory}/${folderName}`;
     let finalFolderName = this.checkExits(path);
     if (!finalFolderName) return;
     fs.mkdirSync(`${finalFolderName}`);
   }
 
-  public delete(username: string, directory: string, name: string | undefined) {
+  public createFile(
+    username: string,
+    directory: string | undefined,
+    fileName: string
+  ) {
+    if (!fileName) return;
     const userHomeDirectory = `./uploads/${username}`;
-    const path = `${userHomeDirectory}/${directory}/${name}`;
-    if (!fs.existsSync(path)) {
+    if (!fs.existsSync(userHomeDirectory)) {
       return;
     }
+    const path = directory
+      ? `${userHomeDirectory}/${directory}/${fileName}`
+      : `${userHomeDirectory}/${fileName}`;
+    let finalFileName = this.checkExits(path);
+    if (!finalFileName) return;
+    fs.writeFileSync(`${finalFileName}`, "Super");
+  }
 
-    fs.rm(path, { recursive: true, force: true }, (err) => {
-      if (err) {
-        throw err;
+  public delete(username: string, directory: string, files: string[]) {
+    const userHomeDirectory = `./uploads/${username}`;
+    files.forEach((file) => {
+      const path = `${userHomeDirectory}/${directory}/${file}`;
+      if (fs.existsSync(path)) {
+        fs.rmSync(path, { recursive: true, force: true });
       }
     });
   }
@@ -560,7 +575,6 @@ class FS {
     }
     const newPath = `${userHomeDirectory}/${newdirectory}/${newname}`;
     const finalPath = this.checkExits(newPath, path);
-    console.log(path, finalPath);
     if (!finalPath) return;
     fs.cpSync(path, finalPath, { recursive: true });
     fs.rmSync(path, { recursive: true });
@@ -580,7 +594,6 @@ class FS {
     }
     const newPath = `${userHomeDirectory}/${newdirectory}/${newname}`;
     const finalPath = this.checkExits(newPath, path);
-    console.log(path, finalPath);
     if (!finalPath) return;
     fs.cpSync(path, finalPath, { recursive: true });
   }
@@ -652,6 +665,16 @@ class FS {
         filename = splitPath.join(".");
       } else {
         filename = path;
+      }
+    } else {
+      if (path[0] === ".") {
+        const splitPath = path.split(".").splice(1);
+        if (splitPath.length > 1) {
+          ext = "." + splitPath[splitPath.length - 1];
+          splitPath.pop();
+        }
+        filename = splitPath.join(".");
+        filename = "." + filename;
       }
     }
     let currentIterator = 1;

@@ -1,0 +1,206 @@
+import Breadcrumbs from "./modules/Breadcrumbs.js";
+import FileUtils from "./modules/FileUtils.js";
+class Files {
+    constructor(directory) {
+        this.selected = [];
+        this.shift = false;
+        this.control = false;
+        this.container = document.querySelector(".files-container");
+        this.files = document.querySelectorAll(".file");
+        this.folders = document.querySelectorAll(".folder");
+        this.contextMenu = document.querySelector(".files-context-menu");
+        this.directory = directory;
+        this.createEvents();
+        document.body.onclick = (e) => {
+            if (!this.checkEvent(e)) {
+                this.selected = [];
+                this.folders.forEach((folder) => {
+                    folder.classList.remove("selected");
+                });
+                this.files.forEach((file) => {
+                    file.classList.remove("selected");
+                });
+                this.contextMenu.classList.remove("show");
+            }
+        };
+        this.folders.forEach((folder) => {
+            folder.ondblclick = () => {
+                var _a;
+                this.selected = [];
+                let path = window.location.pathname;
+                let splitPath = path.split("/");
+                splitPath = splitPath.filter((item) => item !== "");
+                path = splitPath.join("/");
+                window.location.href =
+                    "/" + path + "/" + ((_a = folder.querySelector("span")) === null || _a === void 0 ? void 0 : _a.innerText);
+            };
+        });
+        this.handleContextMenu();
+    }
+    createEvents() {
+        window.onkeydown = (e) => {
+            if (e.key === "Shift") {
+                e.preventDefault();
+                this.shift = true;
+            }
+            if (e.key === "Control") {
+                e.preventDefault();
+                this.control = true;
+            }
+        };
+        window.onkeyup = (e) => {
+            if (e.key === "Shift") {
+                this.shift = false;
+            }
+            if (e.key === "Control") {
+                this.control = false;
+            }
+        };
+        this.container.onclick = (e) => {
+            if (this.checkEvent(e)) {
+                const target = e.target;
+                if (target.classList.contains("folder")) {
+                    this.folders.forEach((folder, key) => {
+                        if (folder === target) {
+                            this.handleSelect(target, key);
+                            return;
+                        }
+                    });
+                }
+                else if (target.classList.contains("file")) {
+                    this.files.forEach((file, key) => {
+                        if (file === target) {
+                            this.handleSelect(target, key);
+                            return;
+                        }
+                    });
+                }
+            }
+        };
+        this.container.oncontextmenu = (e) => {
+            e.preventDefault();
+            this.handleRightClick(e, this.checkEvent(e));
+        };
+    }
+    handleSelect(target, key) {
+        if (!this.control && !this.shift) {
+            this.folders.forEach((folder) => {
+                folder.classList.remove("selected");
+            });
+            this.files.forEach((file) => {
+                file.classList.remove("selected");
+            });
+            if (this.selected.includes(target)) {
+                const currentKey = this.selected.indexOf(target);
+                console.log(currentKey);
+                target.classList.remove("selected");
+                this.selected = [];
+            }
+            else {
+                this.selected.push(target);
+                target.classList.add("selected");
+            }
+        }
+        else if (this.control) {
+            if (this.selected.includes(target)) {
+                const currentKey = this.selected.indexOf(target);
+                this.selected.splice(currentKey, 1);
+                target.classList.remove("selected");
+            }
+            else {
+                this.selected.push(target);
+                target.classList.add("selected");
+            }
+        }
+        else if (this.shift) {
+            if (this.selected.length === 0) {
+                this.selected.push(target);
+                target.classList.add("selected");
+            }
+            else {
+                this.folders.forEach((folder) => {
+                    folder.classList.remove("selected");
+                });
+                this.files.forEach((file) => {
+                    file.classList.remove("selected");
+                });
+                const lastSelectedKey = Array.from(this.folders).indexOf(this.selected[0]);
+                if (lastSelectedKey < key) {
+                    for (let i = lastSelectedKey; i <= key; i++) {
+                        console.log(key);
+                        this.selected.push(this.folders[i]);
+                        this.folders[i].classList.add("selected");
+                    }
+                }
+                else {
+                    for (let i = lastSelectedKey; i >= key; i--) {
+                        this.selected.push(this.folders[i]);
+                        this.folders[i].classList.add("selected");
+                    }
+                }
+            }
+        }
+    }
+    handleRightClick(e, file) {
+        if (file) {
+            if (this.selected.length === 0) {
+                const file = e.target;
+                this.selected.push(file);
+                file.classList.add("selected");
+            }
+        }
+        this.showContextMenu(e, file);
+    }
+    showContextMenu(e, file) {
+        var _a;
+        const innerFile = this.contextMenu.querySelector("#file");
+        const innerDefault = this.contextMenu.querySelector("#default");
+        if (file) {
+            innerFile.style.display = "flex";
+            innerDefault.style.display = "none";
+        }
+        else {
+            innerFile.style.display = "none";
+            innerDefault.style.display = "flex";
+        }
+        (_a = this.contextMenu) === null || _a === void 0 ? void 0 : _a.classList.add("show");
+        this.contextMenu.style.top = `${e.clientY}px`;
+        this.contextMenu.style.left = `${e.clientX + 4}px`;
+        this.contextMenu.style.transform = this.getTranslate({
+            x: e.clientX,
+            y: e.clientY,
+        });
+    }
+    handleContextMenu() {
+        const createFolder = document.querySelector("#contextMenu-createNewFolder");
+        const createFile = document.querySelector("#contextMenu-createNewFile");
+        const deleteFile = document.querySelector("#contextMenu-deleteFile");
+        createFolder.onclick = () => FileUtils.createFolder(this.directory);
+        createFile.onclick = () => FileUtils.createFile(this.directory);
+        deleteFile.onclick = () => {
+            const files = [];
+            this.selected.forEach((file) => {
+                files.push(file.querySelector(".full-name").innerText);
+            });
+            FileUtils.deleteFile(this.directory, [...new Set(files)]);
+        };
+    }
+    getTranslate(coords) {
+        const translate = { x: 0, y: 0 };
+        if (coords.y > window.innerHeight - 300) {
+            translate.y = -100;
+        }
+        if (coords.x >
+            document.querySelector(".root").getBoundingClientRect().right - 200) {
+            translate.x = -100;
+        }
+        return `translate(${translate.x}%, ${translate.y}%)`;
+    }
+    checkEvent(e) {
+        const target = e.target;
+        return (target.classList.contains("folder") || target.classList.contains("file"));
+    }
+}
+const breadcrumbs = new Breadcrumbs();
+new Files(breadcrumbs.finalPath.join("/"));
+breadcrumbs.createBreadcrumbs();

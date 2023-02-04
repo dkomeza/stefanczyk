@@ -2,10 +2,11 @@
 
 @import "./modules/Navbar";
 @import "./modules/Sidebar";
+@import "./Files/Files";
 
 body {
   opacity: 0;
-  transition: 1s;
+  transition: opacity 1s;
   min-height: 100vh;
   width: 100vw;
   display: flex;

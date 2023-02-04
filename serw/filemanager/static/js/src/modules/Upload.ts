@@ -25,6 +25,7 @@ class Upload {
       for (let i = 0; i < this.fileInput.files!.length; i++) {
         formData.append("files", this.fileInput.files![i]);
       }
+      formData.append("path", this.path);
       request.open("POST", `/api/upload`);
       request.send(formData);
       request.onload = () => {

@@ -1,0 +1,28 @@
+.file {
+  display: block;
+  width: 100px;
+  border-radius: 16px;
+  padding: 8px;
+  cursor: pointer;
+  h3 {
+    text-align: center;
+    width: 100%;
+    overflow-wrap: break-word;
+    pointer-events: none;
+    font-size: 14px;
+    font-weight: 400;
+    user-select: none;
+  }
+
+  img {
+    margin: 0 auto;
+    pointer-events: none;
+    display: block;
+    border-radius: 8px;
+    height: 64px;
+    user-select: none;
+  }
+  &.selected {
+    background-color: $background-transparent;
+  }
+}

@@ -5,7 +5,24 @@ import formidable from "formidable";
 import { engine } from "express-handlebars";
 import cookieParser from "cookie-parser";
 
-const context = {
+interface FileInterface {
+  name: string;
+  modified: Date;
+  icon: string;
+}
+
+interface FolderInterface {
+  name: string;
+  path: string;
+  size: number;
+}
+
+interface ContextInterface {
+  files: FileInterface[];
+  folders: FolderInterface[];
+}
+
+const context: ContextInterface = {
   files: [],
   folders: [],
 };
@@ -21,6 +38,15 @@ app.engine(
   "handlebars",
   engine({
     defaultLayout: "main.handlebars",
+    partialsDir: "./views/partials",
+    helpers: {
+      shortenName: (name: string) => {
+        if (name.length > 17) {
+          return name.substring(0, 17) + "...";
+        }
+        return name;
+      },
+    },
   })
 );
 app.set("view engine", "handlebars");
@@ -30,9 +56,8 @@ app.get("/login", (req, res) => {
   const { username, publicKey } = req.cookies;
   if (username && publicKey) {
     Auth.auth(username, publicKey).then((data) => {
-      console.log(data);
       if (data) {
-        res.redirect(301, "/");
+        res.redirect("/");
         return;
       }
     });
@@ -45,7 +70,7 @@ app.get("/signup", (req, res) => {
   if (username && publicKey) {
     Auth.auth(username, publicKey).then((data) => {
       if (data) {
-        res.redirect(301, "/");
+        res.redirect("/");
         return;
       }
     });
@@ -61,7 +86,27 @@ app.get("/", (req, res) => {
         res.render("home.handlebars", { context });
         return;
       }
-      res.redirect(301, "/login");
+      res.redirect("/login");
+      return;
+    });
+  } else {
+    res.redirect("/login");
+  }
+});
+
+app.get("/files", (req, res) => {
+  const { username, publicKey } = req.cookies;
+  const directory = req.url.split("/").splice(2).join("/");
+  if (username && publicKey) {
+    Auth.auth(username, publicKey).then((data) => {
+      if (data) {
+        const { files, folders } = FS.getFiles(username, directory);
+        context.files = files;
+        context.folders = folders;
+        res.render("Content/files.handlebars", { context });
+        return;
+      }
+      res.redirect("/login");
       return;
     });
   } else {
@@ -71,13 +116,17 @@ app.get("/", (req, res) => {
 
 app.get("/files/*", (req, res) => {
   const { username, publicKey } = req.cookies;
+  const directory = req.url.split("/").splice(2).join("/");
   if (username && publicKey) {
     Auth.auth(username, publicKey).then((data) => {
       if (data) {
-        res.render("home.handlebars", { context });
+        const { files, folders } = FS.getFiles(username, directory);
+        context.files = files;
+        context.folders = folders;
+        res.render("Content/files.handlebars", { context });
         return;
       }
-      res.redirect(301, "/login");
+      res.redirect("/login");
       return;
     });
   } else {
@@ -91,7 +140,7 @@ app.post("/api/signup", (req, res) => {
     if (!data.error) {
       res.cookie("username", data.username);
       res.cookie("publicKey", data.publicKey);
-      res.redirect(500, "/");
+      res.redirect("/");
       return;
     }
     res.redirect("/signup");
@@ -104,7 +153,7 @@ app.post("/api/login", (req, res) => {
     if (!data.error) {
       res.cookie("username", data.username);
       res.cookie("publicKey", data.publicKey);
-      res.redirect(301, "/");
+      res.redirect("/");
       return;
     } else {
       res.redirect("/login");
@@ -114,7 +163,6 @@ app.post("/api/login", (req, res) => {
 
 app.post("/api/upload", function (req, res) {
   const { username, publicKey } = req.cookies;
-  console.log(req);
   if (!(username && publicKey)) {
     res.status(401);
     res.send({ error: "Unauthorized" });
@@ -134,7 +182,6 @@ app.post("/api/upload", function (req, res) {
         return;
       }
       const fileArr = [];
-      console.log(files);
       if (files.files instanceof Array) {
         files.files.forEach((file) => {
           fileArr.push(file);
@@ -142,8 +189,8 @@ app.post("/api/upload", function (req, res) {
       } else {
         fileArr.push(files.files);
       }
-      FS.saveFiles(username.toString(), fileArr);
-      res.redirect(301, "/");
+      FS.saveFiles(username.toString(), fileArr, fields.path.toString());
+      res.redirect("/");
     });
   });
 });
@@ -162,38 +209,62 @@ app.post("/api/file", function (req, res) {
 });
 
 app.post("/api/createFolder", (req, res) => {
-  const { username, publicKey, directory, foldername } = req.body;
+  const { username, publicKey } = req.cookies;
+  const { directory, foldername } = req.body;
   if (!foldername) {
     res.status(400);
     res.send({ error: "Folder name is required" });
     return;
   }
-  Auth.auth(username.toString(), publicKey.toString()).then((data) => {
+  Auth.auth(username, publicKey).then((data) => {
     if (data) {
-      res.status(401);
-      res.send({ error: "Unauthorized" });
+      FS.createFolder(username, directory, foldername);
+      res.redirect("/files/" + directory);
       return;
     }
-    FS.createFolder(username, directory, foldername);
-    res.send({ message: "Folder created" });
+    res.status(401);
+    res.send({ error: "Unauthorized" });
+    return;
+  });
+});
+
+app.post("/api/createFile", (req, res) => {
+  const { username, publicKey } = req.cookies;
+  const { directory, filename } = req.body;
+  if (!filename) {
+    res.status(400);
+    res.send({ error: "Folder name is required" });
+    return;
+  }
+  Auth.auth(username, publicKey).then((data) => {
+    if (data) {
+      FS.createFile(username, directory, filename);
+      res.redirect("/files/" + directory);
+      return;
+    }
+    res.status(401);
+    res.send({ error: "Unauthorized" });
+    return;
   });
 });
 
 app.post("/api/delete", function (req, res) {
-  const { username, publicKey, directory, filename } = req.body;
-  if (!filename) {
+  const { username, publicKey } = req.cookies;
+  const { directory, files } = req.body;
+  if (files.length === 0) {
     res.status(400);
     res.send({ error: "Filename is required" });
     return;
   }
   Auth.auth(username.toString(), publicKey.toString()).then((data) => {
     if (data) {
-      res.status(401);
-      res.send({ error: "Unauthorized" });
+      FS.delete(username, directory, files);
+      res.send({ success: true });
       return;
     }
-    FS.delete(username, directory, filename);
-    res.send({ message: "File deleted" });
+    res.status(401);
+    res.send({ error: "Unauthorized" });
+    return;
   });
 });
 
@@ -279,7 +350,6 @@ app.post("/api/info", function (req, res) {
       return;
     }
     const info = FS.info(username, directory, filename);
-    console.log(info);
   });
 });
 
@@ -287,4 +357,4 @@ app.get("/api/status", (req, res) => {
   res.send(JSON.stringify({ status: "API is running" }));
 });
 
-app.listen(3000, () => {});
+app.listen(3001, () => {});

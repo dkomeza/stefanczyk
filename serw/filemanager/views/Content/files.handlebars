@@ -1,0 +1,48 @@
+<div class="path">
+  <span class="breadcrumbs">
+    <a href="/files/">
+    <i class="fa-solid fa-house"></i>
+    </a>
+  </span>
+</div>
+<div class="files-container">
+  <div class="folders-wrapper main-wrapper">
+    <h2>Folders</h2>
+    <div class="flex-container files-flex">
+      {{#each context.folders}}
+        {{> Folder folder=this}}
+      {{/each}}
+    </div>
+  </div>
+  <div class="files-wrapper main-wrapper">
+    <h2>Files</h2>
+    <div class="flex-container">
+      {{#each context.files}}
+        {{> File file=this}}
+      {{/each}}
+    </div>
+  </div>
+  <div class="files-context-menu">
+      <div class="context-menu">
+        <div id="file">
+          <div class="context-menu-item" id="contextMenu-deleteFile">
+            <i class="fa-solid fa-folder-plus"></i>
+            <span class="context-menu-item-text">Delete</span>
+          </div>
+        </div>
+        <div id="default">
+          <div class="context-menu-item" id="contextMenu-createNewFolder">
+            <i class="fa-solid fa-folder-plus"></i>
+            <span class="context-menu-item-text">New Folder</span>
+          </div>
+          <div class="context-menu-item" id="contextMenu-createNewFile">
+            <i class="fa-solid fa-file-plus"></i>
+            <span class="context-menu-item-text">New File</span>
+          </div>
+        </div>
+      </div>
+    </div>
+</div>
+<div id="file-modal">
+</div>
+<script src="/js/build/Files.js" type="module" defer></script>

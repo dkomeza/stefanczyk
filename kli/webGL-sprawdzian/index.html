@@ -1,0 +1,51 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>Document</title>
+    <script
+      src="https://cdnjs.cloudflare.com/ajax/libs/three.js/0.148.0/three.min.js"
+      integrity="sha512-TBsRPqWeusJljmmEij9waZ9K+qO2m6W1pu+5h5BjxvdizD1Izn1wwJyVYNFFFH42tIfedURxTsgtXF2Lah2PXA=="
+      crossorigin="anonymous"
+    ></script>
+    <script src="./src/index.js" type="module"></script>
+    <style>
+      body {
+        margin: 0;
+      }
+
+      #position-wrapper {
+        position: absolute;
+        top: 32px;
+        right: 32px;
+        overflow: scroll;
+        height: calc(100vh - 32px);
+        width: 200px;
+      }
+      #add-light {
+        position: fixed;
+        top: 32px;
+        left: 32px;
+      }
+      .controls {
+        display: flex;
+        flex-direction: column;
+        margin-bottom: 16px;
+        background-color: rgba(255, 255, 255, 0.2);
+        border-radius: 16px;
+        padding: 8px;
+      }
+      .button-controler {
+        width: 30px;
+        height: 15px;
+      }
+    </style>
+  </head>
+  <body>
+    <button id="add-light">Add light</button>
+    <div id="position-wrapper"></div>
+    <div id="root"></div>
+  </body>
+</html>

@@ -10,7 +10,7 @@ dotenv_1.default.config();
 class cypher {
     constructor() {
         this.cypherPassword = (password) => {
-            return crypto_js_1.default.SHA3(password, { outputLength: 512 }).toString();
+            return crypto_js_1.default.SHA512(password, { outputLength: 512 }).toString();
         };
         this.createKeyPair = (passwordHash) => {
             const publicKey = crypto_1.default.randomBytes(256).toString("hex");

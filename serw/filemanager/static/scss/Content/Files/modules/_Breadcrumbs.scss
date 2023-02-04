@@ -1,0 +1,16 @@
+.breadcrumbs {
+  .breadcrumb {
+    text-decoration: none;
+    color: $text-primary;
+    transition: 0.3s;
+    i {
+      transition: 0.3s;
+    }
+    &.hover {
+      color: $accent-primary;
+      i {
+        color: $accent-primary;
+      }
+    }
+  }
+}

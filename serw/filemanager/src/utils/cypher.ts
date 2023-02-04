@@ -10,7 +10,7 @@ class cypher {
     this.fileKey = process.env.CYPHER_FILE_KEY!;
   }
   cypherPassword = (password: string) => {
-    return CryptoJS.SHA3(password, { outputLength: 512 }).toString();
+    return CryptoJS.SHA512(password, { outputLength: 512 }).toString();
   };
   createKeyPair = (passwordHash: string) => {
     const publicKey = crypto.randomBytes(256).toString("hex");
