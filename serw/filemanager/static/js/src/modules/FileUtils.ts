@@ -43,6 +43,38 @@ class FileUtils {
     }).then(() => window.location.reload());
   }
 
+  renameFile(directory: string, file: HTMLElement) {
+    const oldName = file.querySelector("span")?.innerText;
+    file.querySelector(
+      "h3"
+    )!.innerHTML = `<input type="text" value="${oldName}">`;
+    const input = file.querySelector("input")! as HTMLInputElement;
+    input.setSelectionRange(0, input.value.length);
+    input.focus();
+    input.onblur = () => {
+      this.handleRename(directory, oldName!, input.value);
+    };
+    input.onkeydown = (e) => {
+      if (e.key === "Enter") {
+        this.handleRename(directory, oldName!, input.value);
+      }
+    };
+  }
+
+  private handleRename(directory: string, oldname: string, newname: string) {
+    fetch("/api/rename", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        directory: directory,
+        oldname: oldname,
+        newname: newname,
+      }),
+    }).then(() => window.location.reload());
+  }
+
   private createActionDivs() {
     const createFolderDiv = document.createElement("div");
     createFolderDiv.innerHTML = `<form action="/api/createFolder" method="POST">

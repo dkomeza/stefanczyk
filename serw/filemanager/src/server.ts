@@ -117,10 +117,11 @@ app.get("/files", (req, res) => {
 app.get("/files/*", (req, res) => {
   const { username, publicKey } = req.cookies;
   const directory = req.url.split("/").splice(2).join("/");
+  let finaldir = directory.replace(/%20/g, " ");
   if (username && publicKey) {
     Auth.auth(username, publicKey).then((data) => {
       if (data) {
-        const { files, folders } = FS.getFiles(username, directory);
+        const { files, folders } = FS.getFiles(username, finaldir);
         context.files = files;
         context.folders = folders;
         res.render("Content/files.handlebars", { context });
@@ -190,20 +191,21 @@ app.post("/api/upload", function (req, res) {
         fileArr.push(files.files);
       }
       FS.saveFiles(username.toString(), fileArr, fields.path.toString());
-      res.redirect("/");
+      res.send({ success: true });
     });
   });
 });
 
 app.post("/api/file", function (req, res) {
   const { username, publicKey, directory, filename } = req.body;
+  let finaldir = directory.replace(/%20/g, " ");
   Auth.auth(username.toString(), publicKey.toString()).then((data) => {
     if (data) {
       res.status(401);
       res.send({ error: "Unauthorized" });
       return;
     }
-    const { path } = FS.getFile(username, directory, filename);
+    const { path } = FS.getFile(username, finaldir, filename);
     res.sendFile(path, { root: "./" });
   });
 });
@@ -211,6 +213,8 @@ app.post("/api/file", function (req, res) {
 app.post("/api/createFolder", (req, res) => {
   const { username, publicKey } = req.cookies;
   const { directory, foldername } = req.body;
+  let finaldir = directory.replace(/%20/g, " ");
+  let finalfoldername = foldername.replace(/%20/g, " ");
   if (!foldername) {
     res.status(400);
     res.send({ error: "Folder name is required" });
@@ -218,8 +222,8 @@ app.post("/api/createFolder", (req, res) => {
   }
   Auth.auth(username, publicKey).then((data) => {
     if (data) {
-      FS.createFolder(username, directory, foldername);
-      res.redirect("/files/" + directory);
+      FS.createFolder(username, finaldir, finalfoldername);
+      res.redirect("/files/" + finaldir);
       return;
     }
     res.status(401);
@@ -231,6 +235,8 @@ app.post("/api/createFolder", (req, res) => {
 app.post("/api/createFile", (req, res) => {
   const { username, publicKey } = req.cookies;
   const { directory, filename } = req.body;
+  let finaldir = directory.replace(/%20/g, " ");
+  let finalfilename = filename.replace(/%20/g, " ");
   if (!filename) {
     res.status(400);
     res.send({ error: "Folder name is required" });
@@ -238,8 +244,8 @@ app.post("/api/createFile", (req, res) => {
   }
   Auth.auth(username, publicKey).then((data) => {
     if (data) {
-      FS.createFile(username, directory, filename);
-      res.redirect("/files/" + directory);
+      FS.createFile(username, finaldir, finalfilename);
+      res.redirect("/files/" + finaldir);
       return;
     }
     res.status(401);
@@ -251,6 +257,7 @@ app.post("/api/createFile", (req, res) => {
 app.post("/api/delete", function (req, res) {
   const { username, publicKey } = req.cookies;
   const { directory, files } = req.body;
+  let finaldir = directory.replace(/%20/g, " ");
   if (files.length === 0) {
     res.status(400);
     res.send({ error: "Filename is required" });
@@ -258,7 +265,7 @@ app.post("/api/delete", function (req, res) {
   }
   Auth.auth(username.toString(), publicKey.toString()).then((data) => {
     if (data) {
-      FS.delete(username, directory, files);
+      FS.delete(username, finaldir, files);
       res.send({ success: true });
       return;
     }
@@ -269,7 +276,11 @@ app.post("/api/delete", function (req, res) {
 });
 
 app.post("/api/rename", function (req, res) {
-  const { username, publicKey, directory, oldname, newname } = req.body;
+  const { username, publicKey } = req.cookies;
+  const { directory, oldname, newname } = req.body;
+  let finaldir = directory.replace(/%20/g, " ");
+  let finaloldname = oldname.replace(/%20/g, " ");
+  let finalnewname = newname.replace(/%20/g, " ");
   if (!oldname || !newname || oldname === newname) {
     res.status(400);
     res.send({ error: "Oldname and newname are required" });
@@ -277,11 +288,13 @@ app.post("/api/rename", function (req, res) {
   }
   Auth.auth(username.toString(), publicKey.toString()).then((data) => {
     if (data) {
-      res.status(401);
-      res.send({ error: "Unauthorized" });
+      FS.rename(username, finaldir, finaloldname, finalnewname);
+      res.send({ success: true });
       return;
     }
-    FS.rename(username, directory, oldname, newname);
+    res.status(401);
+    res.send({ error: "Unauthorized" });
+    return;
   });
 });
 

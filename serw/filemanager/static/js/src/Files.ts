@@ -173,6 +173,18 @@ class Files {
       x: e.clientX,
       y: e.clientY,
     });
+
+    if (this.selected.length > 1) {
+      const renameFile = document.querySelector(
+        "#contextMenu-renameFile"
+      ) as HTMLElement;
+      renameFile.style.display = "none";
+    } else {
+      const renameFile = document.querySelector(
+        "#contextMenu-renameFile"
+      ) as HTMLElement;
+      renameFile.style.display = "block";
+    }
   }
 
   private handleContextMenu() {
@@ -186,6 +198,9 @@ class Files {
     const deleteFile = document.querySelector(
       "#contextMenu-deleteFile"
     ) as HTMLElement;
+    const renameFile = document.querySelector(
+      "#contextMenu-renameFile"
+    ) as HTMLElement;
 
     createFolder.onclick = () => FileUtils.createFolder(this.directory);
     createFile.onclick = () => FileUtils.createFile(this.directory);
@@ -198,6 +213,16 @@ class Files {
         );
       });
       FileUtils.deleteFile(this.directory, [...new Set(files)]);
+    };
+
+    renameFile.onclick = () => {
+      const files: string[] = [];
+      this.selected.forEach((file) => {
+        files.push(
+          (file.querySelector(".full-name") as HTMLElement).innerText!
+        );
+      });
+      FileUtils.renameFile(this.directory, this.selected[0]);
     };
   }
 

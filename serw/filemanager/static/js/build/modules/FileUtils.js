@@ -36,6 +36,35 @@ class FileUtils {
             }),
         }).then(() => window.location.reload());
     }
+    renameFile(directory, file) {
+        var _a;
+        const oldName = (_a = file.querySelector("span")) === null || _a === void 0 ? void 0 : _a.innerText;
+        file.querySelector("h3").innerHTML = `<input type="text" value="${oldName}">`;
+        const input = file.querySelector("input");
+        input.setSelectionRange(0, input.value.length);
+        input.focus();
+        input.onblur = () => {
+            this.handleRename(directory, oldName, input.value);
+        };
+        input.onkeydown = (e) => {
+            if (e.key === "Enter") {
+                this.handleRename(directory, oldName, input.value);
+            }
+        };
+    }
+    handleRename(directory, oldname, newname) {
+        fetch("/api/rename", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                directory: directory,
+                oldname: oldname,
+                newname: newname,
+            }),
+        }).then(() => window.location.reload());
+    }
     createActionDivs() {
         const createFolderDiv = document.createElement("div");
         createFolderDiv.innerHTML = `<form action="/api/createFolder" method="POST">

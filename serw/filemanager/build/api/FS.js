@@ -436,6 +436,7 @@ class FS {
         const destinationDirectory = `${userHomeDirectory}/${directory}`;
         files.forEach((file) => {
             let destinationName = this.checkExitsUpload(destinationDirectory, file.originalFilename);
+            console.log(destinationName);
             if (!destinationName)
                 return;
             fs.copyFileSync(`./temp/${file.newFilename}`, `${destinationName}`);

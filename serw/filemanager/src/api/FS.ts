@@ -428,6 +428,7 @@ class FS {
         destinationDirectory,
         file.originalFilename!
       );
+      console.log(destinationName);
       if (!destinationName) return;
       fs.copyFileSync(`./temp/${file.newFilename}`, `${destinationName}`);
       fs.rmSync(`./temp/${file.newFilename}`);

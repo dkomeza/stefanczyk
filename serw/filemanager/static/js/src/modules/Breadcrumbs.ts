@@ -6,7 +6,6 @@ export default class Breadcrumbs {
     this.breadcrumbs = document.querySelector(".breadcrumbs")!;
     this.breadcrumbs.children[0].remove();
     this.path = window.location.pathname;
-    this.getPath();
     this.finalPath = this.getPath();
   }
   getPath() {

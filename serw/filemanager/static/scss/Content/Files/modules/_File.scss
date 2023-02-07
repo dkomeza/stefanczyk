@@ -25,4 +25,14 @@
   &.selected {
     background-color: $background-transparent;
   }
+  input {
+    text-align: center;
+    width: 100% !important;
+    border: 1px solid $accent-primary;
+    border-radius: 8px;
+    padding: 2px 8px;
+    outline: 0;
+    background-color: $background-secondary;
+    pointer-events: all;
+  }
 }

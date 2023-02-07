@@ -93,6 +93,16 @@
 .file.selected {
   background-color: rgba(25, 24, 25, 0.4);
 }
+.file input {
+  text-align: center;
+  width: 100% !important;
+  border: 1px solid #5c85e6;
+  border-radius: 8px;
+  padding: 2px 8px;
+  outline: 0;
+  background-color: #191819;
+  pointer-events: all;
+}
 
 .folder {
   display: block;
@@ -118,6 +128,8 @@
   border-radius: 8px;
   padding: 2px 8px;
   outline: 0;
+  background-color: #191819;
+  pointer-events: all;
 }
 .folder img {
   margin: 0 auto;

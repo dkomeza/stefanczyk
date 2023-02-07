@@ -170,11 +170,20 @@ class Files {
             x: e.clientX,
             y: e.clientY,
         });
+        if (this.selected.length > 1) {
+            const renameFile = document.querySelector("#contextMenu-renameFile");
+            renameFile.style.display = "none";
+        }
+        else {
+            const renameFile = document.querySelector("#contextMenu-renameFile");
+            renameFile.style.display = "block";
+        }
     }
     handleContextMenu() {
         const createFolder = document.querySelector("#contextMenu-createNewFolder");
         const createFile = document.querySelector("#contextMenu-createNewFile");
         const deleteFile = document.querySelector("#contextMenu-deleteFile");
+        const renameFile = document.querySelector("#contextMenu-renameFile");
         createFolder.onclick = () => FileUtils.createFolder(this.directory);
         createFile.onclick = () => FileUtils.createFile(this.directory);
         deleteFile.onclick = () => {
@@ -183,6 +192,13 @@ class Files {
                 files.push(file.querySelector(".full-name").innerText);
             });
             FileUtils.deleteFile(this.directory, [...new Set(files)]);
+        };
+        renameFile.onclick = () => {
+            const files = [];
+            this.selected.forEach((file) => {
+                files.push(file.querySelector(".full-name").innerText);
+            });
+            FileUtils.renameFile(this.directory, this.selected[0]);
         };
     }
     getTranslate(coords) {

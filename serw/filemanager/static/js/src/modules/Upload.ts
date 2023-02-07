@@ -8,13 +8,16 @@ class Upload {
     this.upload = document.querySelector(".upload")!;
     this.fileInput = document.querySelector("#file-input")!;
     this.path = this.getCurrentPath();
+    console.log(this.path);
   }
   getCurrentPath() {
     if (
       window.location.pathname.split("/")[1] === "files" &&
       window.location.pathname.split("/").splice(2).join("/")
     ) {
-      return window.location.pathname.split("/").splice(2).join("/");
+      return this.urldecode(
+        window.location.pathname.split("/").splice(2).join("/")
+      );
     }
     return "/";
   }
@@ -26,15 +29,21 @@ class Upload {
         formData.append("files", this.fileInput.files![i]);
       }
       formData.append("path", this.path);
-      request.open("POST", `/api/upload`);
-      request.send(formData);
       request.onload = () => {
         if (request.status === 200) {
           window.location.reload();
+        } else {
+          console.log(request.responseText);
         }
       };
+      request.open("POST", "/api/upload");
+      request.send(formData);
+
       this.fileInput.value = "";
     });
+  }
+  private urldecode(url: string) {
+    return decodeURIComponent((url + "").replace(/\+/g, "%20"));
   }
 }
 
