@@ -1,0 +1,20 @@
+#file-editor {
+  display: flex !important;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: $background-transparent;
+  z-index: 1000;
+  backdrop-filter: blur(4px);
+
+  flex-direction: column;
+  justify-content: center;
+  align-items: center;
+  padding: 64px 128px;
+  .nav {
+    display: flex;
+    flex-direction: row;
+  }
+}

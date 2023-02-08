@@ -17,6 +17,7 @@ export default class Navbar {
   }
   getCurrentIcon() {
     const path = this.currentPath.split("/")[1];
+    if (path === "editor") return 1;
     return navbarItems.indexOf(path);
   }
   createNavbar() {

@@ -436,7 +436,6 @@ class FS {
         const destinationDirectory = `${userHomeDirectory}/${directory}`;
         files.forEach((file) => {
             let destinationName = this.checkExitsUpload(destinationDirectory, file.originalFilename);
-            console.log(destinationName);
             if (!destinationName)
                 return;
             fs.copyFileSync(`./temp/${file.newFilename}`, `${destinationName}`);
@@ -497,6 +496,17 @@ class FS {
             return { path: "" };
         }
         return { path: filePath };
+    }
+    getFileContent(username, directory) {
+        let userHomeDirectory = `./uploads/${username}`;
+        if (directory) {
+            userHomeDirectory = `${userHomeDirectory}/${directory}`;
+        }
+        if (!fs.existsSync(userHomeDirectory)) {
+            return { content: "" };
+        }
+        const content = fs.readFileSync(userHomeDirectory, "utf8");
+        return { content: content };
     }
     createFolder(username, directory, folderName) {
         if (!folderName)

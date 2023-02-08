@@ -135,6 +135,32 @@ app.get("/files/*", (req, res) => {
   }
 });
 
+app.get("/editor/*", (req, res) => {
+  const { username, publicKey } = req.cookies;
+  const directory = req.url.split("/").splice(2).join("/");
+  let finaldir = directory.split("?")[0].replace(/%20/g, " ");
+  const { path } = req.query;
+  if (username && publicKey) {
+    Auth.auth(username, publicKey).then((data) => {
+      if (data) {
+        const { content } = FS.getFileContent(username, finaldir);
+        const file = finaldir.split("/").pop();
+        const context = {
+          content,
+          path,
+          file,
+        };
+        res.render("Content/FileEditor.handlebars", { context });
+        return;
+      }
+      res.redirect("/login");
+      return;
+    });
+  } else {
+    res.redirect("/login");
+  }
+});
+
 app.post("/api/signup", (req, res) => {
   const { username, password } = req.body;
   Auth.signup(username, password).then((data) => {
@@ -252,6 +278,10 @@ app.post("/api/createFile", (req, res) => {
     res.send({ error: "Unauthorized" });
     return;
   });
+});
+
+app.post("/api/saveFile", (req, res) => {
+  res.send("gitara brahu");
 });
 
 app.post("/api/delete", function (req, res) {

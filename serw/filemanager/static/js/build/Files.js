@@ -35,6 +35,24 @@ class Files {
                     "/" + path + "/" + ((_a = folder.querySelector("span")) === null || _a === void 0 ? void 0 : _a.innerText);
             };
         });
+        this.files.forEach((file) => {
+            file.ondblclick = () => {
+                var _a;
+                this.selected = [];
+                let path = window.location.pathname;
+                let splitPath = path.split("/");
+                splitPath[1] = "editor";
+                splitPath = splitPath.filter((item) => item !== "");
+                path = splitPath.join("/");
+                window.location.href =
+                    "/" +
+                        path +
+                        "/" +
+                        ((_a = file.querySelector("span")) === null || _a === void 0 ? void 0 : _a.innerText) +
+                        "?path=" +
+                        this.directory;
+            };
+        });
         this.handleContextMenu();
     }
     createEvents() {

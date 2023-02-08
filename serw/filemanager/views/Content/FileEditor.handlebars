@@ -1,0 +1,21 @@
+<div class="container" id="code-editor">
+  <div class="nav">
+    <div class="nav-item">
+      <button class="btn btn-link" id="save-file">
+        <i class="fa-solid fa-floppy-disk"></i>
+      </button>
+    </div>
+    <div class="nav-item">
+      <button class="btn btn-link" id="cancel-file">
+        <i class="fa-solid fa-xmark"></i>
+      </button>
+    </div>
+  </div>
+  <div class="editor"></div>
+  {{context.content}}
+</div>
+<script>
+  var path = "{{context.path}}" ? "{{context.path}}" : "/"; var file = "{{context.file}}";
+</script>
+<script src="/js/build/FileEditor.js">
+</script>

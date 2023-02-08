@@ -428,7 +428,6 @@ class FS {
         destinationDirectory,
         file.originalFilename!
       );
-      console.log(destinationName);
       if (!destinationName) return;
       fs.copyFileSync(`./temp/${file.newFilename}`, `${destinationName}`);
       fs.rmSync(`./temp/${file.newFilename}`);
@@ -495,6 +494,17 @@ class FS {
     return { path: filePath };
   }
 
+  public getFileContent(username: string, directory: string) {
+    let userHomeDirectory = `./uploads/${username}`;
+    if (directory) {
+      userHomeDirectory = `${userHomeDirectory}/${directory}`;
+    }
+    if (!fs.existsSync(userHomeDirectory)) {
+      return { content: "" };
+    }
+    const content = fs.readFileSync(userHomeDirectory, "utf8");
+    return { content: content };
+  }
   public createFolder(
     username: string,
     directory: string | undefined,
