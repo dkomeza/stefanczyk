@@ -1,3 +1,4 @@
+<link rel="stylesheet" href="/scss/Content/FileEditor/FileEditor.css" />
 <div class="container" id="code-editor">
   <div class="nav">
     <div class="nav-item">
@@ -11,8 +12,18 @@
       </button>
     </div>
   </div>
-  <div class="editor"></div>
-  {{context.content}}
+  <div id="editor">
+    <div id="lines"></div>
+    <div id="code">
+      <div id="code-content">
+        {{#each context.content}}
+          <div class="line">{{this}}</div>
+        {{/each}}
+      </div>
+    </div>
+  </div>
+  <div id="content">
+  </div>
 </div>
 <script>
   var path = "{{context.path}}" ? "{{context.path}}" : "/"; var file = "{{context.file}}";

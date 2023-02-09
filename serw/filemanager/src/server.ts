@@ -146,11 +146,15 @@ app.get("/editor/*", (req, res) => {
         const { content } = FS.getFileContent(username, finaldir);
         const file = finaldir.split("/").pop();
         const context = {
-          content,
+          content: content.split("\n"),
           path,
           file,
         };
-        res.render("Content/FileEditor.handlebars", { context });
+        console.log(content.toString());
+        res.render("Content/FileEditor.handlebars", {
+          context,
+          layout: "editor.handlebars",
+        });
         return;
       }
       res.redirect("/login");
