@@ -65,6 +65,7 @@
         color: $text-primary;
         background-color: $background-primary;
         padding: 2px 8px;
+        white-space: nowrap;
         &:focus,
         &:focus-visible,
         &:focus-within {

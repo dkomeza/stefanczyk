@@ -1,9 +1,12 @@
+import JS from "./themes/JS.js";
+
 declare var path: string;
 declare var file: string;
 
 class FileEditor {
   path: string;
   file: string;
+  ext: string;
   closeButton: HTMLButtonElement;
   saveButton: HTMLButtonElement;
   editor: HTMLDivElement;
@@ -18,6 +21,7 @@ class FileEditor {
       "line"
     ) as HTMLCollectionOf<HTMLDivElement>;
     this.createNavEvents();
+    this.ext = this.getFileExtension();
   }
 
   createNavEvents() {
@@ -34,6 +38,12 @@ class FileEditor {
     this.createKeyEvents();
     this.makeEditable();
     this.updateLineNumbers();
+    this.updateTheme();
+  }
+
+  private getFileExtension() {
+    const file = this.file.split(".");
+    return file[file.length - 1];
   }
 
   private async saveFile() {
@@ -151,6 +161,11 @@ class FileEditor {
         }
       }
     });
+    for (let i = 0; i < this.lines.length; i++) {
+      this.lines[i].addEventListener("keyup", (e) => {
+        this.updateTheme(this.lines[i]);
+      });
+    }
   }
 
   private addLine(target: HTMLDivElement) {
@@ -159,6 +174,9 @@ class FileEditor {
     newLine.setAttribute("contenteditable", "true");
     target.after(newLine);
     newLine.focus();
+    newLine.addEventListener("keydown", (e) => {
+      this.updateTheme(newLine);
+    });
     this.updateLineNumbers();
   }
 
@@ -175,6 +193,24 @@ class FileEditor {
       line.classList.add("line-number");
       line.textContent = `${i + 1}`;
       lineNumbers.append(line);
+    }
+  }
+
+  private updateTheme(line?: HTMLDivElement) {
+    if (line) {
+      switch (this.ext) {
+        case "js":
+          line.innerHTML = JS.highlight(line.textContent!);
+          break;
+      }
+      return;
+    }
+    for (let i = 0; i < this.lines.length; i++) {
+      switch (this.ext) {
+        case "js":
+          this.lines[i].innerHTML = JS.highlight(this.lines[i].textContent!);
+          break;
+      }
     }
   }
 }

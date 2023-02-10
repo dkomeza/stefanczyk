@@ -15,7 +15,7 @@
   <div id="editor">
     <div id="lines"></div>
     <div id="code">
-      <div id="code-content">
+      <div id="code-content" spellcheck="false">
         {{#each context.content}}
           <div class="line">{{this}}</div>
         {{/each}}
@@ -28,5 +28,5 @@
 <script>
   var path = "{{context.path}}" ? "{{context.path}}" : "/"; var file = "{{context.file}}";
 </script>
-<script src="/js/build/FileEditor.js">
+<script src="/js/build/FileEditor.js" type="module">
 </script>

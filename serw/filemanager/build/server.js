@@ -130,7 +130,7 @@ app.get("/editor/*", (req, res) => {
                     file,
                 };
                 console.log(content.toString());
-                res.render("Content/FileEditor.handlebars", {
+                res.render("Content/CodeEditor.handlebars", {
                     context,
                     layout: "editor.handlebars",
                 });

@@ -1,4 +1,3 @@
-"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -8,6 +7,7 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
+import JS from "./themes/JS.js";
 class FileEditor {
     constructor() {
         this.path = path;
@@ -17,6 +17,7 @@ class FileEditor {
         this.editor = document.querySelector("#editor");
         this.lines = document.getElementsByClassName("line");
         this.createNavEvents();
+        this.ext = this.getFileExtension();
     }
     createNavEvents() {
         this.closeButton.onclick = () => {
@@ -31,6 +32,11 @@ class FileEditor {
         this.createKeyEvents();
         this.makeEditable();
         this.updateLineNumbers();
+        this.updateTheme();
+    }
+    getFileExtension() {
+        const file = this.file.split(".");
+        return file[file.length - 1];
     }
     saveFile() {
         return __awaiter(this, void 0, void 0, function* () {
@@ -145,6 +151,11 @@ class FileEditor {
                 }
             }
         });
+        for (let i = 0; i < this.lines.length; i++) {
+            this.lines[i].addEventListener("keyup", (e) => {
+                this.updateTheme(this.lines[i]);
+            });
+        }
     }
     addLine(target) {
         const newLine = document.createElement("div");
@@ -152,6 +163,9 @@ class FileEditor {
         newLine.setAttribute("contenteditable", "true");
         target.after(newLine);
         newLine.focus();
+        newLine.addEventListener("keydown", (e) => {
+            this.updateTheme(newLine);
+        });
         this.updateLineNumbers();
     }
     removeLine(target) {
@@ -166,6 +180,23 @@ class FileEditor {
             line.classList.add("line-number");
             line.textContent = `${i + 1}`;
             lineNumbers.append(line);
+        }
+    }
+    updateTheme(line) {
+        if (line) {
+            switch (this.ext) {
+                case "js":
+                    line.innerHTML = JS.highlight(line.textContent);
+                    break;
+            }
+            return;
+        }
+        for (let i = 0; i < this.lines.length; i++) {
+            switch (this.ext) {
+                case "js":
+                    this.lines[i].innerHTML = JS.highlight(this.lines[i].textContent);
+                    break;
+            }
         }
     }
 }
