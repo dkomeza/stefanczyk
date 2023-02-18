@@ -702,6 +702,18 @@ class FS {
       currentIterator++;
     }
   }
+
+  public getImage(username: string, directory: string) {
+    let userHomeDirectory = `./uploads/${username}`;
+    if (directory) {
+      userHomeDirectory = `${userHomeDirectory}/${directory}`;
+    }
+    if (!fs.existsSync(userHomeDirectory)) {
+      return { content: "" };
+    }
+    const content = fs.readFileSync(userHomeDirectory);
+    return new Buffer(content).toString('base64');
+  }
 }
 
 export default new FS();

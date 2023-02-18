@@ -143,25 +143,49 @@ app.get("/editor/*", (req, res) => {
   if (username && publicKey) {
     Auth.auth(username, publicKey).then((data) => {
       if (data) {
-        const { content } = FS.getFileContent(username, finaldir);
         const file = finaldir.split("/").pop();
+        const { content } = FS.getFileContent(username, finaldir);
         const context = {
           content: content.split("\n"),
           path,
           file,
         };
-        console.log(content.toString());
-        res.render("Content/CodeEditor.handlebars", {
-          context,
-          layout: "editor.handlebars",
-        });
-        return;
+        if (file?.endsWith(".png") || file?.endsWith(".jpg")) {
+          res.render("Content/ImageEditor.handlebars", {
+            context,
+            layout: "editor.handlebars",
+          });
+          return;
+        } else {
+          res.render("Content/CodeEditor.handlebars", {
+            context,
+            layout: "editor.handlebars",
+          });
+          return;
+        }
       }
       res.redirect("/login");
       return;
     });
   } else {
     res.redirect("/login");
+  }
+});
+
+app.post("/image", (req, res) => {
+  const { directory } = req.body;
+  console.log(directory);
+  const { username, publicKey } = req.cookies;
+  if (username && publicKey) {
+    Auth.auth(username, publicKey).then((data) => {
+      if (data) {
+        const data = FS.getImage(username, directory);
+        res.writeHead(200, { "Content-Type": "image/jpeg" });
+        res.end(data);
+      } else {
+        return;
+      }
+    });
   }
 });
 
@@ -220,6 +244,7 @@ app.post("/api/upload", function (req, res) {
       } else {
         fileArr.push(files.files);
       }
+      console.log(fileArr);
       FS.saveFiles(username.toString(), fileArr, fields.path.toString());
       res.send({ success: true });
     });

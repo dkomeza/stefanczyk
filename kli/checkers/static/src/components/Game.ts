@@ -31,7 +31,9 @@ export default class Game {
 
   handleClick() {
     window.onmousedown = (e) => {
-      const object: THREE.Object3D = this.reycaster.handleReycaster(e);
+      const object: THREE.Object3D | undefined =
+        this.reycaster.handleReycaster(e);
+      if (!object) return;
       if (object.name === "pawn") {
         this.selectedPawn = object;
       }
@@ -220,6 +222,7 @@ class Reycaster extends THREE.Raycaster {
     this.mouseVector.y = -(e.clientY / window.innerHeight) * 2 + 1;
     this.setFromCamera(this.mouseVector, this.camera);
     const intersects = this.intersectObjects(this.scene.children);
+    if (!intersects.length) return;
     return intersects[0].object;
   }
 }

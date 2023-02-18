@@ -7,9 +7,8 @@ import "./scss/main.scss";
 const ui = new UI();
 ui.createUI();
 const game = new Game(ui.getContainer());
-game.addPlayer("white");
-game.addPlayer("black");
+// game.addPlayer("white");
+// game.addPlayer("black");
 
 document.querySelector<HTMLDivElement>("#app")?.append(ui.createUI());
-const network = new Network();
-console.log(await network.getNetwork());
+const network = new Network(ui.getMenu(), game.addPlayer);
