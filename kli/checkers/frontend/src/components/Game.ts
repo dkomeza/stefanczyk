@@ -55,13 +55,13 @@ class Scene {
   scene: THREE.Scene;
   renderer: THREE.WebGLRenderer;
   camera: THREE.PerspectiveCamera;
-  controls: OrbitControls;
+  // controls: OrbitControls;
   axes: THREE.AxesHelper;
   constructor(container: HTMLElement) {
     this.scene = this.createScene();
     this.renderer = this.createRenderer();
     this.camera = this.createCamera();
-    this.controls = this.createControls(container);
+    // this.controls = this.createControls(container);
     this.axes = this.createAxes();
     this.scene.add(this.axes);
     window.onresize = this.handleResize.bind(this);
@@ -88,17 +88,18 @@ class Scene {
       0.1,
       10000
     );
-    camera.position.set(20, 20, 0);
+    camera.position.set(25, 20, 0);
+    camera.lookAt(this.scene.position);
     return camera;
   }
 
-  createControls(container: HTMLElement) {
-    const controls = new OrbitControls(this.camera, container);
-    controls.enableDamping = true;
-    controls.maxDistance = 120;
-    controls.target.set(0, 0.5, 0);
-    return controls;
-  }
+  // createControls(container: HTMLElement) {
+  //   const controls = new OrbitControls(this.camera, container);
+  //   controls.enableDamping = true;
+  //   controls.maxDistance = 120;
+  //   controls.target.set(0, 0.5, 0);
+  //   return controls;
+  // }
 
   handleResize() {
     this.camera.aspect = window.innerWidth / window.innerHeight;

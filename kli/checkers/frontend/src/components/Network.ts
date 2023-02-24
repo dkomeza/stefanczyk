@@ -31,20 +31,25 @@ export default class Network {
     const button = this.menu.querySelector("button")!;
     button.onclick = () => {
       if (input.value == "") return;
-      this.addPlayer();
+      this.addPlayer(input.value);
     };
   }
 
-  async addPlayer() {
+  async addPlayer(name: string) {
     const socket = io("/", {
-      path: "/api/socket",
-
+      path: "/socket.io",
+      query: {
+        name,
+      },
     });
     socket.on("connect", () => {
       console.log("Connected");
     });
-    socket.on("message", (data) => {
+    socket.on("players", (data) => {
       console.log(data);
     });
+    window.onclick = () => {
+      socket.emit("move", "askjfls");
+    };
   }
 }

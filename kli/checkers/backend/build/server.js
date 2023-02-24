@@ -7,17 +7,15 @@ const express_1 = __importDefault(require("express"));
 const http_1 = __importDefault(require("http"));
 const socket_io_1 = require("socket.io");
 const Game_js_1 = __importDefault(require("./api/Game.js"));
-const players = [];
 const app = (0, express_1.default)();
 const server = http_1.default.createServer(app);
 const io = new socket_io_1.Server(server, {
-    path: "/api/socket",
+    path: "/socket.io",
 });
 const game = new Game_js_1.default(io);
 io.on("connection", (socket) => {
-    const socketNames = Array.from(io.sockets.sockets.keys());
-    const sockets = io.sockets.sockets;
-    game.handleMatchmaking(socketNames, sockets);
+    const name = socket.handshake.query.name;
+    game.addToQueue(socket, name.toString());
 });
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));

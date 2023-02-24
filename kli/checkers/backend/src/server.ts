@@ -4,23 +4,16 @@ import { Server } from "socket.io";
 
 import Game from "./api/Game.js";
 
-interface PlayerInterface {
-  id: string;
-}
-
-const players: PlayerInterface[] = [];
-
 const app = express();
 const server = http.createServer(app);
 const io = new Server(server, {
-  path: "/api/socket",
+  path: "/socket.io",
 });
 const game = new Game(io);
 
 io.on("connection", (socket) => {
-  const socketNames = Array.from(io.sockets.sockets.keys());
-  const sockets = io.sockets.sockets;
-  game.handleMatchmaking(socketNames, sockets);
+  const name = socket.handshake.query.name;
+  game.addToQueue(socket, name!.toString());
 });
 
 app.use(express.json());
