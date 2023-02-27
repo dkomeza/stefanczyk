@@ -1,29 +1,18 @@
-import { io } from "socket.io-client";
+import { io, Socket } from "socket.io-client";
 
-interface StatusData {
-  status: string;
-}
 
 export default class Network {
-  serverUrl: string = "/api/socket";
   menu: HTMLElement;
-  callback: (color: "black" | "white") => void;
+  color: "black" | "white" | null = null;
+  callback: (color: "black" | "white", socket: Socket) => void;
 
   constructor(
     menu: HTMLElement,
-    addPlayer: (color: "black" | "white") => void
+    addPlayer: (color: "black" | "white", socket: Socket) => void
   ) {
     this.menu = menu;
     this.callback = addPlayer;
     this.handleLogin();
-  }
-
-  public async getNetwork() {
-    const res = await fetch(this.serverUrl + "status", {
-      method: "POST",
-    });
-    const data: StatusData = await res.json();
-    return data.status;
   }
 
   handleLogin() {
@@ -32,24 +21,25 @@ export default class Network {
     button.onclick = () => {
       if (input.value == "") return;
       this.addPlayer(input.value);
+      this.menu.style.display = "none";
     };
   }
 
-  async addPlayer(name: string) {
+  addPlayer(name: string) {
     const socket = io("/", {
       path: "/socket.io",
       query: {
         name,
       },
     });
-    socket.on("connect", () => {
-      console.log("Connected");
-    });
     socket.on("players", (data) => {
       console.log(data);
     });
-    window.onclick = () => {
-      socket.emit("move", "askjfls");
-    };
+    socket.on("color", (data) => {
+      this.color = data;
+    });
+    socket.on("start", () => {
+      this.callback(this.color!, socket);
+    });
   }
 }

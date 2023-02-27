@@ -67,108 +67,215 @@ export default class Game {
 }
 
 class Checkers {
-  board: number[] = [
-    0, 2, 0, 2, 0, 2, 0, 2, 2, 0, 2, 0, 2, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0,
-    0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1,
-    0, 1, 0, 1, 0, 1, 1, 0, 1, 0, 1, 0, 1, 0,
+  board: number[][] = [
+    // 0 - empty, 1 - white, 2 - black, 3 - whiteQ, 4 - blackQ
+    [0, 2, 0, 2, 0, 2, 0, 2],
+    [2, 0, 2, 0, 2, 0, 2, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 0, 0, 0, 0, 0, 0, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 0],
   ];
   turn: number = 0; // 0 - white, 1 - black
   constructor() {}
 
-  playMove(data: { from: number; to: number }) {
+  playMove(data: {
+    from: { x: number; y: number };
+    to: { x: number; y: number };
+  }) {
     const { from, to } = data;
-    if (this.board[from] === 1 && this.turn === 0) {
-      this.board[from] = 0;
-      this.board[to] = 1;
-      if (from - to === 14) {
-        this.board[from - 7] = 0;
+    const distanceX = to.x - from.x;
+    const distanceY = to.y - from.y;
+    if (
+      (this.board[from.y][from.x] === 1 || this.board[from.y][from.x] === 3) &&
+      this.turn === 0
+    ) {
+      const directionX = distanceX > 0 ? 1 : -1;
+      const directionY = distanceY > 0 ? 1 : -1;
+      const initialPiece = this.board[from.y][from.x];
+      const currentSquare = {
+        x: from.x,
+        y: from.y,
+      };
+      while (currentSquare.y != to.y) {
+        this.board[currentSquare.y][currentSquare.x] = 0;
+        currentSquare.y += directionY;
+        currentSquare.x += directionX;
       }
-      if (from - to === 18) {
-        this.board[from - 9] = 0;
-      }
-      if (from - to === 21) {
-        this.board[from - 7] = 0;
-        this.board[from - 14] = 0;
-      }
-      if (from - to === 27) {
-        this.board[from - 9] = 0;
-        this.board[from - 18] = 0;
+      if (to.y === 0) {
+        this.board[to.y][to.x] = 3;
+      } else {
+        this.board[to.y][to.x] = initialPiece;
       }
       this.turn = 1;
-    } else if (this.board[from] === 2 && this.turn === 1) {
-      this.board[from] = 0;
-      this.board[to] = 2;
-      if (from - to === -14) {
-        this.board[from + 7] = 0;
+    } else if (
+      (this.board[from.y][from.x] === 2 || this.board[from.y][from.x] === 4) &&
+      this.turn === 1
+    ) {
+      const directionX = distanceX > 0 ? 1 : -1;
+      const currentSquare = {
+        x: from.x,
+        y: from.y,
+      };
+      while (currentSquare.y < to.y) {
+        this.board[currentSquare.y][currentSquare.x] = 0;
+        currentSquare.y++;
+        currentSquare.x += directionX;
       }
-      if (from - to === -18) {
-        this.board[from + 9] = 0;
+      if (to.y === 7) {
+        this.board[to.y][to.x] = 4;
+      } else if (this.board[from.y][from.x] === 4) {
+        this.board[to.y][to.x] = 4;
+      } else {
+        this.board[to.y][to.x] = 2;
       }
       this.turn = 0;
     }
   }
 
-  showLegalMoves(square: number, player: Socket) {
-    if (this.board[square] === 1 && this.turn === 0) {
-      const directions = [-9, -7];
+  showLegalMoves(square: { x: number; y: number }, player: Socket) {
+    if (this.board[square.y][square.x] === 1 && this.turn === 0) {
+      const directions = [
+        [-1, -1],
+        [-1, 1],
+      ];
       const legalMoves = [];
       for (let i = 0; i < directions.length; i++) {
-        let move = square;
-        let capture = false;
+        let move = {
+          x: square.x,
+          y: square.y,
+        };
         while (true) {
-          const col = move % 8;
-          move += directions[i];
-          if (col === 0 && directions[i] === -9) {
+          move.x += directions[i][1];
+          move.y += directions[i][0];
+          if (move.x < 0 || move.x > 7) {
             break;
           }
-          if (col === 7 && directions[i] === -7) {
+          if (move.y < 0 || move.y > 7) {
             break;
           }
-          if (move < 0 || move > 63) break;
-          if (this.board[move] === 0) {
-            if (capture) break;
-            legalMoves.push(move);
+          const x = move.x;
+          const y = move.y;
+          if (this.board[y][x] === 0) {
+            legalMoves.push({
+              x,
+              y,
+            });
             break;
-          } else if (
-            this.board[move] === 2 &&
-            this.board[move + directions[i]] === 0
-          ) {
-            legalMoves.push(move + directions[i]);
-            move += directions[i];
-            capture = true;
+          } else if (this.board[y][x] === 2) {
+            continue;
           } else {
             break;
           }
         }
       }
       player.emit("legalMoves", legalMoves);
-    } else if (this.board[square] === 2 && this.turn === 1) {
-      const directions = [9, 7];
+    } else if (this.board[square.y][square.x] === 2 && this.turn === 1) {
+      const directions = [
+        [1, -1],
+        [1, 1],
+      ];
       const legalMoves = [];
       for (let i = 0; i < directions.length; i++) {
-        let move = square;
-        let capture = false;
+        let move = {
+          x: square.x,
+          y: square.y,
+        };
         while (true) {
-          const col = move % 8;
-          move += directions[i];
-          if (col === 0 && directions[i] === 9) {
+          move.x += directions[i][1];
+          move.y += directions[i][0];
+          if (move.x < 0 || move.x > 7) {
             break;
           }
-          if (col === 7 && directions[i] === 7) {
+          if (move.y < 0 || move.y > 7) {
             break;
           }
-          if (move < 0 || move > 63) break;
-          if (this.board[move] === 0) {
-            if (capture) break;
-            legalMoves.push(move);
+          const x = move.x;
+          const y = move.y;
+          if (this.board[y][x] === 0) {
+            legalMoves.push({
+              x,
+              y,
+            });
             break;
-          } else if (
-            this.board[move] === 1 &&
-            this.board[move + directions[i]] === 0
-          ) {
-            legalMoves.push(move + directions[i]);
-            move += directions[i];
-            capture = true;
+          } else if (this.board[y][x] === 1) {
+            continue;
+          } else {
+            break;
+          }
+        }
+      }
+      player.emit("legalMoves", legalMoves);
+    } else if (this.board[square.y][square.x] === 3 && this.turn === 0) {
+      const directions = [
+        [-1, -1],
+        [-1, 1],
+        [1, -1],
+        [1, 1],
+      ];
+      const legalMoves = [];
+      for (let i = 0; i < directions.length; i++) {
+        let move = {
+          x: square.x,
+          y: square.y,
+        };
+        while (true) {
+          move.x += directions[i][1];
+          move.y += directions[i][0];
+          if (move.x < 0 || move.x > 7) {
+            break;
+          }
+          if (move.y < 0 || move.y > 7) {
+            break;
+          }
+          const x = move.x;
+          const y = move.y;
+          if (this.board[y][x] === 0) {
+            legalMoves.push({
+              x,
+              y,
+            });
+          } else if (this.board[y][x] === 2) {
+            continue;
+          } else {
+            break;
+          }
+        }
+      }
+      player.emit("legalMoves", legalMoves);
+    } else if (this.board[square.y][square.x] === 4 && this.turn === 1) {
+      const directions = [
+        [1, -1],
+        [1, 1],
+        [-1, 1],
+        [-1, -1],
+      ];
+      const legalMoves = [];
+      for (let i = 0; i < directions.length; i++) {
+        let move = {
+          x: square.x,
+          y: square.y,
+        };
+        while (true) {
+          move.x += directions[i][1];
+          move.y += directions[i][0];
+          if (move.x < 0 || move.x > 7) {
+            break;
+          }
+          if (move.y < 0 || move.y > 7) {
+            break;
+          }
+          const x = move.x;
+          const y = move.y;
+          if (this.board[y][x] === 0) {
+            legalMoves.push({
+              x,
+              y,
+            });
+          } else if (this.board[y][x] === 1) {
+            continue;
           } else {
             break;
           }

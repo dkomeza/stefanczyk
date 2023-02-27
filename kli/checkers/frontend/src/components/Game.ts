@@ -1,12 +1,15 @@
 import * as THREE from "three";
-import { OrbitControls } from "three/examples/jsm/controls/OrbitControls";
+import { Socket } from "socket.io-client";
 
 export default class Game {
   scene: Scene;
   board: Board;
   reycaster: Reycaster;
-  players: Player[] = [];
   selectedPawn: THREE.Object3D | null = null;
+  boardPosition: number[] = [];
+  color: "white" | "black" | null = null;
+  socket: Socket | null = null;
+  turn = "white";
 
   constructor(container: HTMLElement) {
     this.scene = new Scene(container);
@@ -15,18 +18,35 @@ export default class Game {
     this.createLight();
     this.handleClick();
     this.scene.renderer.setAnimationLoop(this.render.bind(this));
+    for (let i = 0; i < 64; i++) {
+      this.boardPosition.push(0);
+    }
   }
 
   createLight() {
-    const light = new THREE.DirectionalLight("#FaFaFa", 1);
-    light.position.set(10, 10, 0);
+    const light = new THREE.AmbientLight("#FaFaFa", 0.8);
+    // light.position.set(0, 10, 0);
     this.scene.scene.add(light);
   }
 
-  addPlayer(color: "white" | "black") {
-    const player = new Player(color);
-    this.players.push(player);
-    this.scene.scene.add(player);
+  addPlayer(color: "white" | "black", socket?: Socket) {
+    this.color = color;
+    if (color === "white") {
+      this.scene.camera.position.set(25, 20, 0);
+      this.scene.camera.lookAt(0, 0, 0);
+    } else {
+      this.scene.camera.position.set(-25, 20, 0);
+      this.scene.camera.lookAt(0, 0, 0);
+    }
+    if (socket) {
+      this.socket = socket;
+      socket.emit("ready", "ready");
+      socket.on("position", (data) => {
+        console.table(data);
+        this.boardPosition = data;
+        this.board.updateBoard(data);
+      });
+    }
   }
 
   handleClick() {
@@ -34,12 +54,20 @@ export default class Game {
       const object: THREE.Object3D | undefined =
         this.reycaster.handleReycaster(e);
       if (!object) return;
-      if (object.name === "pawn") {
+      if (object.name === "pawn" && object.userData.color === this.color) {
         this.selectedPawn = object;
+        this.board.hideLegalMoves();
+        this.board.showLegalMoves(
+          this.selectedPawn.userData.square,
+          this.socket!
+        );
       }
-      if (object.name === "square" && this.selectedPawn) {
-        const { x, z } = object.position;
-        this.selectedPawn.position.set(x, 0, z);
+      if (object.userData.available && this.selectedPawn) {
+        this.board.hideLegalMoves();
+        this.socket!.emit("move", {
+          from: this.selectedPawn!.userData.square,
+          to: object.userData.square,
+        });
         this.selectedPawn = null;
       }
     };
@@ -63,7 +91,7 @@ class Scene {
     this.camera = this.createCamera();
     // this.controls = this.createControls(container);
     this.axes = this.createAxes();
-    this.scene.add(this.axes);
+    // this.scene.add(this.axes);
     window.onresize = this.handleResize.bind(this);
     container.appendChild(this.renderer.domElement);
   }
@@ -124,13 +152,60 @@ class Board extends THREE.Object3D {
     for (let i = 0; i < 8; i++) {
       for (let j = 0; j < 8; j++) {
         const color = this.getColor(i, j);
-        const x = i * 2;
-        const z = j * 2;
-        const block = new Square(color, x, z);
-        this.add(block);
+        const square = new Square(color, i, j);
+        this.add(square);
       }
     }
     this.position.set(-7, -0.5, -7);
+    this.name = "board";
+  }
+
+  updateBoard(boardPosition: number[][]) {
+    // delete pawns
+    while (this.children.length > 64) {
+      this.remove(this.children[64]);
+    }
+
+    for (let i = 0; i < 8; i++) {
+      for (let j = 0; j < 8; j++) {
+        if (boardPosition[i][j] === 1) {
+          const pawn = new Pawn("white", i, j, false);
+          this.add(pawn);
+        } else if (boardPosition[i][j] === 2) {
+          const pawn = new Pawn("black", i, j, false);
+          this.add(pawn);
+        } else if (boardPosition[i][j] === 3) {
+          const pawn = new Pawn("white", i, j, true);
+          this.add(pawn);
+        } else if (boardPosition[i][j] === 4) {
+          const pawn = new Pawn("black", i, j, true);
+          this.add(pawn);
+        }
+      }
+    }
+  }
+
+  showLegalMoves(square: { x: number; y: number }, socket: Socket) {
+    socket.emit("legalMoves", square);
+    socket.on("legalMoves", (data) => {
+      console.log(data);
+      for (let i = 0; i < data.length; i++) {
+        const index = data[i].y * 8 + data[i].x;
+        const block = this.children[index] as Square;
+        const material = block.material as THREE.MeshPhongMaterial;
+        material.emissive.set(0x00ff00);
+        block.userData.available = true;
+      }
+    });
+  }
+
+  hideLegalMoves() {
+    for (let i = 0; i < 64; i++) {
+      (
+        (this.children[i] as Square).material as THREE.MeshPhongMaterial
+      ).emissive.set(0x000000);
+      this.children[i].userData.available = false;
+    }
   }
 
   private getColor(i: number, j: number) {
@@ -142,7 +217,7 @@ class Square extends THREE.Mesh {
   constructor(color: "white" | "black", x: number, z: number) {
     super();
     const geometry = new THREE.BoxGeometry(2, 1, 2);
-    const material = new THREE.MeshBasicMaterial({
+    const material = new THREE.MeshPhongMaterial({
       side: THREE.DoubleSide,
       map: new THREE.TextureLoader().load(
         `./src/assets/${color}-block-texture.jpg`
@@ -150,50 +225,21 @@ class Square extends THREE.Mesh {
     });
     this.geometry = geometry;
     this.material = material;
-    this.position.set(x, 0, z);
+    this.position.set(x * 2, 0, z * 2);
     this.name = "square";
-  }
-}
-
-class Player extends THREE.Object3D {
-  color: "white" | "black";
-  pawns: Pawn[] = [];
-  constructor(color: "white" | "black") {
-    super();
-    this.color = color;
-    this.createPawns();
-    this.position.set(-7, 0, -7);
-  }
-
-  createPawns() {
-    for (let i = 0; i < 2; i++) {
-      for (let j = 0; j < 4; j++) {
-        const { x, z } = this.getPosition(i, j, this.color);
-        const pawn = new Pawn(this.color, x, z);
-        this.pawns.push(pawn);
-        this.add(pawn);
-      }
-    }
-  }
-
-  getPosition(i: number, j: number, color: "white" | "black") {
-    if (color === "white") {
-      const x = 12 + i * 2;
-      const translation = (1 - i) * 2;
-      const z = j * 4 + translation;
-      return { x, z };
-    } else {
-      const x = i * 2;
-      const translation = (1 - i) * 2;
-      const z = j * 4 + translation;
-      return { x, z };
-    }
+    this.userData = {
+      square: {
+        x: z,
+        y: x,
+      },
+      available: false,
+    };
   }
 }
 
 class Pawn extends THREE.Mesh {
   pawnColor: "white" | "black";
-  constructor(color: "white" | "black", x: number, z: number) {
+  constructor(color: "white" | "black", i: number, j: number, queen: boolean) {
     super();
     this.material = new THREE.MeshPhysicalMaterial({
       color: color,
@@ -201,10 +247,18 @@ class Pawn extends THREE.Mesh {
       roughness: 0.1,
       specularIntensity: 1,
     });
-    this.geometry = new THREE.CylinderGeometry(0.75, 0.75, 1, 32);
-    this.position.set(x, 0, z);
+    const height = queen ? 1.5 : 1;
+    this.geometry = new THREE.CylinderGeometry(0.75, 0.75, height, 32);
+    this.position.set(i * 2, 0.5, j * 2);
     this.pawnColor = color;
     this.name = "pawn";
+    this.userData = {
+      square: {
+        x: j,
+        y: i,
+      },
+      color: color,
+    };
   }
 }
 

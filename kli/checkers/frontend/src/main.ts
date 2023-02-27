@@ -2,6 +2,8 @@ import Game from "./components/Game";
 import Network from "./components/Network";
 import UI from "./components/UI";
 
+import { Socket } from "socket.io-client";
+
 import "./scss/main.scss";
 
 const ui = new UI();
@@ -11,4 +13,9 @@ const game = new Game(ui.getContainer());
 // game.addPlayer("black");
 
 document.querySelector<HTMLDivElement>("#app")?.append(ui.createUI());
-const network = new Network(ui.getMenu(), game.addPlayer);
+new Network(ui.getMenu(), addPlayer);
+// game.addPlayer("white");
+
+function addPlayer(color: "white" | "black", socket: Socket) {
+  game.addPlayer(color, socket);
+}
