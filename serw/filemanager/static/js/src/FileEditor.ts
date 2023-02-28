@@ -74,7 +74,7 @@ class FileEditor {
         const sel = window.getSelection();
         const cursorPosition = sel?.getRangeAt(0).endOffset;
         const text = target.textContent;
-        if (text && cursorPosition) {
+        if (text && cursorPosition != undefined) {
           const before = text.slice(0, cursorPosition);
           const after = text.slice(cursorPosition);
           target.textContent = before;
@@ -90,12 +90,32 @@ class FileEditor {
         }
         this.addLine(e.target as HTMLDivElement);
       }
-      if (
-        e.key === "Backspace" &&
-        (e.target as HTMLDivElement)!.textContent === ""
-      ) {
-        e.preventDefault();
-        this.removeLine(e.target as HTMLDivElement);
+      if (e.key === "Backspace") {
+        const target = e.target as HTMLDivElement;
+        const sel = window.getSelection();
+        const cursorPosition = sel?.getRangeAt(0).endOffset;
+        sel?.removeAllRanges();
+        if (cursorPosition == 0) {
+          e.preventDefault();
+          const text = target.textContent;
+          const newLine = target.previousElementSibling as HTMLDivElement;
+          newLine.focus();
+          const range = document.createRange();
+          range.setStart(newLine, 1);
+          range.collapse(true);
+          sel?.removeAllRanges();
+          sel?.addRange(range);
+          if (text && cursorPosition != undefined) {
+            newLine.textContent = newLine.textContent + text;
+            const range = document.createRange();
+            range.setStart(newLine, newLine.textContent!.length);
+            range.collapse(true);
+            sel?.removeAllRanges();
+            sel?.addRange(range);
+          }
+          newLine.focus();
+          this.removeLine(e.target as HTMLDivElement);
+        }
       }
       if (e.key === "Tab") {
         e.preventDefault();
@@ -145,7 +165,6 @@ class FileEditor {
             newCursorPosition &&
             next.textContent!.length >= newCursorPosition
           ) {
-            console.log("gitara");
             range.setStart(next.childNodes[0], newCursorPosition!);
             range.collapse(true);
             sel?.removeAllRanges();
@@ -181,8 +200,10 @@ class FileEditor {
   }
 
   private removeLine(target: HTMLDivElement) {
-    target.remove();
-    this.updateLineNumbers();
+    if (this.lines.length > 1) {
+      target.remove();
+      this.updateLineNumbers();
+    }
   }
 
   private updateLineNumbers() {

@@ -64,6 +64,7 @@
   color: #ffffff;
   background-color: #0b0d11;
   padding: 2px 8px;
+  white-space: nowrap;
 }
 .container #editor #code .line:focus, .container #editor #code .line:focus-visible, .container #editor #code .line:focus-within {
   background-color: #191819;

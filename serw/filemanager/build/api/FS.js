@@ -682,7 +682,7 @@ class FS {
             return { content: "" };
         }
         const content = fs.readFileSync(userHomeDirectory);
-        return new Buffer(content).toString('base64');
+        return Buffer.from(content).toString('base64');
     }
 }
 exports.default = new FS();

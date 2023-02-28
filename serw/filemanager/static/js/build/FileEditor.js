@@ -66,7 +66,7 @@ class FileEditor {
                 const sel = window.getSelection();
                 const cursorPosition = sel === null || sel === void 0 ? void 0 : sel.getRangeAt(0).endOffset;
                 const text = target.textContent;
-                if (text && cursorPosition) {
+                if (text && cursorPosition != undefined) {
                     const before = text.slice(0, cursorPosition);
                     const after = text.slice(cursorPosition);
                     target.textContent = before;
@@ -82,10 +82,32 @@ class FileEditor {
                 }
                 this.addLine(e.target);
             }
-            if (e.key === "Backspace" &&
-                e.target.textContent === "") {
-                e.preventDefault();
-                this.removeLine(e.target);
+            if (e.key === "Backspace") {
+                const target = e.target;
+                const sel = window.getSelection();
+                const cursorPosition = sel === null || sel === void 0 ? void 0 : sel.getRangeAt(0).endOffset;
+                sel === null || sel === void 0 ? void 0 : sel.removeAllRanges();
+                if (cursorPosition == 0) {
+                    e.preventDefault();
+                    const text = target.textContent;
+                    const newLine = target.previousElementSibling;
+                    newLine.focus();
+                    const range = document.createRange();
+                    range.setStart(newLine, 1);
+                    range.collapse(true);
+                    sel === null || sel === void 0 ? void 0 : sel.removeAllRanges();
+                    sel === null || sel === void 0 ? void 0 : sel.addRange(range);
+                    if (text && cursorPosition != undefined) {
+                        newLine.textContent = newLine.textContent + text;
+                        const range = document.createRange();
+                        range.setStart(newLine, newLine.textContent.length);
+                        range.collapse(true);
+                        sel === null || sel === void 0 ? void 0 : sel.removeAllRanges();
+                        sel === null || sel === void 0 ? void 0 : sel.addRange(range);
+                    }
+                    newLine.focus();
+                    this.removeLine(e.target);
+                }
             }
             if (e.key === "Tab") {
                 e.preventDefault();
@@ -133,7 +155,6 @@ class FileEditor {
                     const sel = window.getSelection();
                     if (newCursorPosition &&
                         next.textContent.length >= newCursorPosition) {
-                        console.log("gitara");
                         range.setStart(next.childNodes[0], newCursorPosition);
                         range.collapse(true);
                         sel === null || sel === void 0 ? void 0 : sel.removeAllRanges();
@@ -169,8 +190,10 @@ class FileEditor {
         this.updateLineNumbers();
     }
     removeLine(target) {
-        target.remove();
-        this.updateLineNumbers();
+        if (this.lines.length > 1) {
+            target.remove();
+            this.updateLineNumbers();
+        }
     }
     updateLineNumbers() {
         const lineNumbers = document.querySelector("#lines");
