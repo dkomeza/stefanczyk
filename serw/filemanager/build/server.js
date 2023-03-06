@@ -124,6 +124,7 @@ app.get("/editor/*", (req, res) => {
             if (data) {
                 const file = finaldir.split("/").pop();
                 const { content } = FS_1.default.getFileContent(username, finaldir);
+                const theme = {};
                 const context = {
                     content: content.split("\n"),
                     path,
@@ -286,7 +287,19 @@ app.post("/api/createFile", (req, res) => {
     });
 });
 app.post("/api/saveFile", (req, res) => {
-    res.send("gitara brahu");
+    const { username, publicKey } = req.cookies;
+    const { file, content } = req.body;
+    let finalfile = file.replace(/%20/g, " ");
+    Auth_1.default.auth(username, publicKey).then((data) => {
+        if (data) {
+            FS_1.default.saveFile(username, finalfile, content);
+            res.send({ success: true });
+            return;
+        }
+        res.status(401);
+        res.send({ error: "Unauthorized" });
+        return;
+    });
 });
 app.post("/api/delete", function (req, res) {
     const { username, publicKey } = req.cookies;

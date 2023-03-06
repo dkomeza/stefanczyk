@@ -712,7 +712,18 @@ class FS {
       return { content: "" };
     }
     const content = fs.readFileSync(userHomeDirectory);
-    return Buffer.from(content).toString('base64');
+    return Buffer.from(content).toString("base64");
+  }
+
+  public saveFile(username: string, finalFile: string, content: string) {
+    let userHomeDirectory = `./uploads/${username}`;
+    if (finalFile) {
+      userHomeDirectory = `${userHomeDirectory}/${finalFile}`;
+    }
+    if (!fs.existsSync(userHomeDirectory)) {
+      return;
+    }
+    fs.writeFileSync(userHomeDirectory, content);
   }
 }
 

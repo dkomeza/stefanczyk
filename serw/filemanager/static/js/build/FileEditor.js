@@ -10,14 +10,19 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
 import JS from "./themes/JS.js";
 class FileEditor {
     constructor() {
-        this.path = path;
+        this.path = path === "/" ? "" : path;
         this.file = file;
         this.closeButton = document.querySelector("#cancel-file");
         this.saveButton = document.querySelector("#save-file");
+        this.increaseFontSize = document.querySelector("#font-size-increase");
+        this.decreaseFontSize = document.querySelector("#font-size-decrease");
+        this.increaseTheme = document.querySelector("#theme-increase");
+        this.decreaseTheme = document.querySelector("#theme-decrease");
         this.editor = document.querySelector("#editor");
         this.lines = document.getElementsByClassName("line");
         this.createNavEvents();
         this.ext = this.getFileExtension();
+        this.createThemeEvents();
     }
     createNavEvents() {
         this.closeButton.onclick = () => {
@@ -28,7 +33,6 @@ class FileEditor {
         };
     }
     createEditor() {
-        console.log(this.lines);
         this.createKeyEvents();
         this.makeEditable();
         this.updateLineNumbers();
@@ -40,18 +44,30 @@ class FileEditor {
     }
     saveFile() {
         return __awaiter(this, void 0, void 0, function* () {
+            const data = this.getData();
+            console.log(data);
             yield fetch(`/api/saveFile/`, {
                 method: "POST",
                 headers: {
                     "Content-Type": "application/json",
                 },
                 body: JSON.stringify({
-                    content: "asdaf",
+                    content: data,
                     file: `${this.path}/${this.file}`,
                 }),
             });
             window.location.href = `/files/${this.path}`;
         });
+    }
+    getData() {
+        let data = "";
+        for (let i = 0; i < this.lines.length; i++) {
+            data += this.lines[i].textContent;
+            if (i !== this.lines.length - 1) {
+                data += "\n";
+            }
+        }
+        return data;
     }
     makeEditable() {
         for (let i = 0; i < this.lines.length; i++) {
@@ -86,33 +102,31 @@ class FileEditor {
                 const target = e.target;
                 const sel = window.getSelection();
                 const cursorPosition = sel === null || sel === void 0 ? void 0 : sel.getRangeAt(0).endOffset;
-                sel === null || sel === void 0 ? void 0 : sel.removeAllRanges();
-                if (cursorPosition == 0) {
+                if (cursorPosition === 0) {
                     e.preventDefault();
+                    const prevLine = target.previousElementSibling;
                     const text = target.textContent;
-                    const newLine = target.previousElementSibling;
-                    newLine.focus();
-                    const range = document.createRange();
-                    range.setStart(newLine, 1);
-                    range.collapse(true);
-                    sel === null || sel === void 0 ? void 0 : sel.removeAllRanges();
-                    sel === null || sel === void 0 ? void 0 : sel.addRange(range);
-                    if (text && cursorPosition != undefined) {
-                        newLine.textContent = newLine.textContent + text;
-                        const range = document.createRange();
-                        range.setStart(newLine, newLine.textContent.length);
-                        range.collapse(true);
-                        sel === null || sel === void 0 ? void 0 : sel.removeAllRanges();
-                        sel === null || sel === void 0 ? void 0 : sel.addRange(range);
+                    if (prevLine) {
+                        const prevLength = prevLine.textContent.length;
+                        if (prevLength > 0 || text) {
+                            if (text) {
+                                prevLine.textContent += text;
+                            }
+                            prevLine.focus();
+                            const range = document.createRange();
+                            const sel = window.getSelection();
+                            range.setStart(prevLine.childNodes[0], prevLength);
+                            range.collapse(true);
+                            sel === null || sel === void 0 ? void 0 : sel.removeAllRanges();
+                            sel === null || sel === void 0 ? void 0 : sel.addRange(range);
+                        }
+                        prevLine.focus();
                     }
-                    newLine.focus();
-                    this.removeLine(e.target);
+                    this.removeLine(target);
                 }
             }
             if (e.key === "Tab") {
                 e.preventDefault();
-                const target = e.target;
-                target.textContent += "  ";
             }
             if (e.key === "ArrowUp") {
                 e.preventDefault();
@@ -126,7 +140,6 @@ class FileEditor {
                     const sel = window.getSelection();
                     if (newCursorPosition &&
                         prev.textContent.length >= newCursorPosition) {
-                        console.log("gitara");
                         range.setStart(prev.childNodes[0], newCursorPosition);
                         range.collapse(true);
                         sel === null || sel === void 0 ? void 0 : sel.removeAllRanges();
@@ -221,6 +234,12 @@ class FileEditor {
                     break;
             }
         }
+    }
+    createThemeEvents() {
+        // this.increaseFontSize.addEventListener("click", () => {
+        //   this.fontSize += 2;
+        //   this.updateFontSize();
+        // }
     }
 }
 const fileEditor = new FileEditor();

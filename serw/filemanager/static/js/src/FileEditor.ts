@@ -11,17 +11,26 @@ class FileEditor {
   saveButton: HTMLButtonElement;
   editor: HTMLDivElement;
   lines: HTMLCollectionOf<HTMLDivElement>;
+  increaseFontSize: HTMLButtonElement;
+  decreaseFontSize: HTMLButtonElement;
+  increaseTheme: HTMLButtonElement;
+  decreaseTheme: HTMLButtonElement;
   constructor() {
-    this.path = path;
+    this.path = path === "/" ? "" : path;
     this.file = file;
     this.closeButton = document.querySelector("#cancel-file")!;
     this.saveButton = document.querySelector("#save-file")!;
+    this.increaseFontSize = document.querySelector("#font-size-increase")!;
+    this.decreaseFontSize = document.querySelector("#font-size-decrease")!;
+    this.increaseTheme = document.querySelector("#theme-increase")!;
+    this.decreaseTheme = document.querySelector("#theme-decrease")!;
     this.editor = document.querySelector("#editor")!;
     this.lines = document.getElementsByClassName(
       "line"
     ) as HTMLCollectionOf<HTMLDivElement>;
     this.createNavEvents();
     this.ext = this.getFileExtension();
+    this.createThemeEvents();
   }
 
   createNavEvents() {
@@ -34,7 +43,6 @@ class FileEditor {
   }
 
   createEditor() {
-    console.log(this.lines);
     this.createKeyEvents();
     this.makeEditable();
     this.updateLineNumbers();
@@ -47,17 +55,30 @@ class FileEditor {
   }
 
   private async saveFile() {
+    const data = this.getData();
+    console.log(data);
     await fetch(`/api/saveFile/`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({
-        content: "asdaf",
+        content: data,
         file: `${this.path}/${this.file}`,
       }),
     });
     window.location.href = `/files/${this.path}`;
+  }
+
+  private getData() {
+    let data = "";
+    for (let i = 0; i < this.lines.length; i++) {
+      data += this.lines[i].textContent;
+      if (i !== this.lines.length - 1) {
+        data += "\n";
+      }
+    }
+    return data;
   }
 
   private makeEditable() {
@@ -94,33 +115,31 @@ class FileEditor {
         const target = e.target as HTMLDivElement;
         const sel = window.getSelection();
         const cursorPosition = sel?.getRangeAt(0).endOffset;
-        sel?.removeAllRanges();
-        if (cursorPosition == 0) {
+        if (cursorPosition === 0) {
           e.preventDefault();
+          const prevLine = target.previousElementSibling as HTMLDivElement;
           const text = target.textContent;
-          const newLine = target.previousElementSibling as HTMLDivElement;
-          newLine.focus();
-          const range = document.createRange();
-          range.setStart(newLine, 1);
-          range.collapse(true);
-          sel?.removeAllRanges();
-          sel?.addRange(range);
-          if (text && cursorPosition != undefined) {
-            newLine.textContent = newLine.textContent + text;
-            const range = document.createRange();
-            range.setStart(newLine, newLine.textContent!.length);
-            range.collapse(true);
-            sel?.removeAllRanges();
-            sel?.addRange(range);
+          if (prevLine) {
+            const prevLength = prevLine.textContent!.length;
+            if (prevLength > 0 || text) {
+              if (text) {
+                prevLine.textContent += text;
+              }
+              prevLine.focus();
+              const range = document.createRange();
+              const sel = window.getSelection();
+              range.setStart(prevLine.childNodes[0], prevLength);
+              range.collapse(true);
+              sel?.removeAllRanges();
+              sel?.addRange(range);
+            }
+            prevLine.focus();
           }
-          newLine.focus();
-          this.removeLine(e.target as HTMLDivElement);
+          this.removeLine(target);
         }
       }
       if (e.key === "Tab") {
         e.preventDefault();
-        const target = e.target as HTMLDivElement;
-        target.textContent += "  ";
       }
       if (e.key === "ArrowUp") {
         e.preventDefault();
@@ -136,7 +155,6 @@ class FileEditor {
             newCursorPosition &&
             prev.textContent!.length >= newCursorPosition
           ) {
-            console.log("gitara");
             range.setStart(prev.childNodes[0], newCursorPosition!);
             range.collapse(true);
             sel?.removeAllRanges();
@@ -233,6 +251,13 @@ class FileEditor {
           break;
       }
     }
+  }
+
+  private createThemeEvents() {
+    // this.increaseFontSize.addEventListener("click", () => {
+    //   this.fontSize += 2;
+    //   this.updateFontSize();
+    // }
   }
 }
 
