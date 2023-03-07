@@ -109,7 +109,6 @@ class Files {
                 file.classList.remove("selected");
             });
             if (this.selected.includes(target)) {
-                const currentKey = this.selected.indexOf(target);
                 target.classList.remove("selected");
                 this.selected = [];
             }
@@ -141,18 +140,42 @@ class Files {
                 this.files.forEach((file) => {
                     file.classList.remove("selected");
                 });
-                const lastSelectedKey = Array.from(this.folders).indexOf(this.selected[0]);
-                if (lastSelectedKey < key) {
-                    for (let i = lastSelectedKey; i <= key; i++) {
-                        this.selected.push(this.folders[i]);
-                        this.folders[i].classList.add("selected");
+                if (this.selected[0].classList.contains("folder") &&
+                    target.classList.contains("folder")) {
+                    const lastSelectedKey = Array.from(this.folders).indexOf(this.selected[0]);
+                    if (lastSelectedKey < key) {
+                        for (let i = lastSelectedKey; i <= key; i++) {
+                            this.selected.push(this.folders[i]);
+                            this.folders[i].classList.add("selected");
+                        }
+                    }
+                    else {
+                        for (let i = lastSelectedKey; i >= key; i--) {
+                            this.selected.push(this.folders[i]);
+                            this.folders[i].classList.add("selected");
+                        }
+                    }
+                }
+                else if (this.selected[0].classList.contains("file") &&
+                    target.classList.contains("file")) {
+                    const lastSelectedKey = Array.from(this.files).indexOf(this.selected[0]);
+                    if (lastSelectedKey < key) {
+                        for (let i = lastSelectedKey; i <= key; i++) {
+                            this.selected.push(this.files[i]);
+                            this.files[i].classList.add("selected");
+                        }
+                    }
+                    else {
+                        for (let i = lastSelectedKey; i >= key; i--) {
+                            this.selected.push(this.files[i]);
+                            this.files[i].classList.add("selected");
+                        }
                     }
                 }
                 else {
-                    for (let i = lastSelectedKey; i >= key; i--) {
-                        this.selected.push(this.folders[i]);
-                        this.folders[i].classList.add("selected");
-                    }
+                    this.selected = [];
+                    this.selected.push(target);
+                    target.classList.add("selected");
                 }
             }
         }
