@@ -1,12 +1,14 @@
-import JS from "./themes/JS.js";
-
-declare var path: string;
+declare var path: string | undefined;
 declare var file: string;
+declare var fontSize: string;
+declare var theme: string;
 
 class FileEditor {
   path: string;
   file: string;
   ext: string;
+  fontSize: number;
+  theme: number;
   closeButton: HTMLButtonElement;
   saveButton: HTMLButtonElement;
   editor: HTMLDivElement;
@@ -16,8 +18,11 @@ class FileEditor {
   increaseTheme: HTMLButtonElement;
   decreaseTheme: HTMLButtonElement;
   constructor() {
-    this.path = path === "/" ? "" : path;
+    this.path = path || "";
     this.file = file;
+    this.fontSize = parseInt(fontSize);
+    this.theme = parseInt(theme);
+
     this.closeButton = document.querySelector("#cancel-file")!;
     this.saveButton = document.querySelector("#save-file")!;
     this.increaseFontSize = document.querySelector("#font-size-increase")!;
@@ -31,6 +36,7 @@ class FileEditor {
     this.createNavEvents();
     this.ext = this.getFileExtension();
     this.createThemeEvents();
+    this.setTheme();
   }
 
   createNavEvents() {
@@ -46,7 +52,14 @@ class FileEditor {
     this.createKeyEvents();
     this.makeEditable();
     this.updateLineNumbers();
-    this.updateTheme();
+  }
+
+  private setTheme() {
+    const root = document.documentElement;
+    root.style.setProperty("--fontSize", `${this.fontSize}px`);
+    this.editor.classList.remove("theme-1", "theme-2", "theme-3");
+    this.editor.classList.add(`theme-${this.theme + 1}`);
+    this.saveTheme();
   }
 
   private getFileExtension() {
@@ -56,7 +69,6 @@ class FileEditor {
 
   private async saveFile() {
     const data = this.getData();
-    console.log(data);
     await fetch(`/api/saveFile/`, {
       method: "POST",
       headers: {
@@ -134,8 +146,8 @@ class FileEditor {
               sel?.addRange(range);
             }
             prevLine.focus();
+            this.removeLine(target);
           }
-          this.removeLine(target);
         }
       }
       if (e.key === "Tab") {
@@ -198,11 +210,6 @@ class FileEditor {
         }
       }
     });
-    for (let i = 0; i < this.lines.length; i++) {
-      this.lines[i].addEventListener("keyup", (e) => {
-        this.updateTheme(this.lines[i]);
-      });
-    }
   }
 
   private addLine(target: HTMLDivElement) {
@@ -211,9 +218,6 @@ class FileEditor {
     newLine.setAttribute("contenteditable", "true");
     target.after(newLine);
     newLine.focus();
-    newLine.addEventListener("keydown", (e) => {
-      this.updateTheme(newLine);
-    });
     this.updateLineNumbers();
   }
 
@@ -235,29 +239,40 @@ class FileEditor {
     }
   }
 
-  private updateTheme(line?: HTMLDivElement) {
-    if (line) {
-      switch (this.ext) {
-        case "js":
-          line.innerHTML = JS.highlight(line.textContent!);
-          break;
+  private createThemeEvents() {
+    this.increaseFontSize.addEventListener("click", () => {
+      this.fontSize += 2;
+      this.setTheme();
+    });
+    this.decreaseFontSize.addEventListener("click", () => {
+      this.fontSize -= 2;
+      this.setTheme();
+    });
+    this.increaseTheme.addEventListener("click", () => {
+      if (this.theme < 2) {
+        this.theme++;
+        this.setTheme();
       }
-      return;
-    }
-    for (let i = 0; i < this.lines.length; i++) {
-      switch (this.ext) {
-        case "js":
-          this.lines[i].innerHTML = JS.highlight(this.lines[i].textContent!);
-          break;
+    });
+    this.decreaseTheme.addEventListener("click", () => {
+      if (this.theme > 0) {
+        this.theme--;
+        this.setTheme();
       }
-    }
+    });
   }
 
-  private createThemeEvents() {
-    // this.increaseFontSize.addEventListener("click", () => {
-    //   this.fontSize += 2;
-    //   this.updateFontSize();
-    // }
+  private saveTheme() {
+    fetch("/api/theme", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({
+        theme: this.theme,
+        fontSize: this.fontSize,
+      }),
+    });
   }
 }
 

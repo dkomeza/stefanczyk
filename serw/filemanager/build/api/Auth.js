@@ -29,12 +29,21 @@ class Auth {
             }
         });
     }
-    signup(username, password) {
+    signup(username, password, passwordRepeat) {
         return __awaiter(this, void 0, void 0, function* () {
             const passwordHash = cypher_1.default.cypherPassword(password);
             const { publicKey, privateKey } = cypher_1.default.createKeyPair(passwordHash);
+            if (password !== passwordRepeat) {
+                return { error: "Passwords do not match" };
+            }
             try {
-                yield this.db.createUser({ username, passwordHash, privateKey });
+                yield this.db.createUser({
+                    username,
+                    passwordHash,
+                    privateKey,
+                    theme: 1,
+                    fontSize: 8,
+                });
                 return { username, publicKey };
             }
             catch (err) {

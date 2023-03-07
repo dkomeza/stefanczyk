@@ -1,3 +1,4 @@
+"use strict";
 var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, generator) {
     function adopt(value) { return value instanceof P ? value : new P(function (resolve) { resolve(value); }); }
     return new (P || (P = Promise))(function (resolve, reject) {
@@ -7,11 +8,12 @@ var __awaiter = (this && this.__awaiter) || function (thisArg, _arguments, P, ge
         step((generator = generator.apply(thisArg, _arguments || [])).next());
     });
 };
-import JS from "./themes/JS.js";
 class FileEditor {
     constructor() {
-        this.path = path === "/" ? "" : path;
+        this.path = path || "";
         this.file = file;
+        this.fontSize = parseInt(fontSize);
+        this.theme = parseInt(theme);
         this.closeButton = document.querySelector("#cancel-file");
         this.saveButton = document.querySelector("#save-file");
         this.increaseFontSize = document.querySelector("#font-size-increase");
@@ -23,6 +25,7 @@ class FileEditor {
         this.createNavEvents();
         this.ext = this.getFileExtension();
         this.createThemeEvents();
+        this.setTheme();
     }
     createNavEvents() {
         this.closeButton.onclick = () => {
@@ -36,7 +39,13 @@ class FileEditor {
         this.createKeyEvents();
         this.makeEditable();
         this.updateLineNumbers();
-        this.updateTheme();
+    }
+    setTheme() {
+        const root = document.documentElement;
+        root.style.setProperty("--fontSize", `${this.fontSize}px`);
+        this.editor.classList.remove("theme-1", "theme-2", "theme-3");
+        this.editor.classList.add(`theme-${this.theme + 1}`);
+        this.saveTheme();
     }
     getFileExtension() {
         const file = this.file.split(".");
@@ -45,7 +54,6 @@ class FileEditor {
     saveFile() {
         return __awaiter(this, void 0, void 0, function* () {
             const data = this.getData();
-            console.log(data);
             yield fetch(`/api/saveFile/`, {
                 method: "POST",
                 headers: {
@@ -121,8 +129,8 @@ class FileEditor {
                             sel === null || sel === void 0 ? void 0 : sel.addRange(range);
                         }
                         prevLine.focus();
+                        this.removeLine(target);
                     }
-                    this.removeLine(target);
                 }
             }
             if (e.key === "Tab") {
@@ -185,11 +193,6 @@ class FileEditor {
                 }
             }
         });
-        for (let i = 0; i < this.lines.length; i++) {
-            this.lines[i].addEventListener("keyup", (e) => {
-                this.updateTheme(this.lines[i]);
-            });
-        }
     }
     addLine(target) {
         const newLine = document.createElement("div");
@@ -197,9 +200,6 @@ class FileEditor {
         newLine.setAttribute("contenteditable", "true");
         target.after(newLine);
         newLine.focus();
-        newLine.addEventListener("keydown", (e) => {
-            this.updateTheme(newLine);
-        });
         this.updateLineNumbers();
     }
     removeLine(target) {
@@ -218,28 +218,39 @@ class FileEditor {
             lineNumbers.append(line);
         }
     }
-    updateTheme(line) {
-        if (line) {
-            switch (this.ext) {
-                case "js":
-                    line.innerHTML = JS.highlight(line.textContent);
-                    break;
-            }
-            return;
-        }
-        for (let i = 0; i < this.lines.length; i++) {
-            switch (this.ext) {
-                case "js":
-                    this.lines[i].innerHTML = JS.highlight(this.lines[i].textContent);
-                    break;
-            }
-        }
-    }
     createThemeEvents() {
-        // this.increaseFontSize.addEventListener("click", () => {
-        //   this.fontSize += 2;
-        //   this.updateFontSize();
-        // }
+        this.increaseFontSize.addEventListener("click", () => {
+            this.fontSize += 2;
+            this.setTheme();
+        });
+        this.decreaseFontSize.addEventListener("click", () => {
+            this.fontSize -= 2;
+            this.setTheme();
+        });
+        this.increaseTheme.addEventListener("click", () => {
+            if (this.theme < 2) {
+                this.theme++;
+                this.setTheme();
+            }
+        });
+        this.decreaseTheme.addEventListener("click", () => {
+            if (this.theme > 0) {
+                this.theme--;
+                this.setTheme();
+            }
+        });
+    }
+    saveTheme() {
+        fetch("/api/theme", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                theme: this.theme,
+                fontSize: this.fontSize,
+            }),
+        });
     }
 }
 const fileEditor = new FileEditor();

@@ -1,31 +1,32 @@
-<div class="login-wrapper">
+<div class="form-wrapper">
+  {{#if error}}
+    <div class="error">
+      {{error}}
+    </div>
+  {{/if}}
   <img src="img/logo.webp" alt="Logo" />
-  <div class="email-container form-container">
-    <div class="input-wrapper">
-      <label htmlFor="email">username</label>
-      <input type="text" name="email" id="email" />
+  <form action="/api/signup" method="post">
+    <div class="form-container">
+      <div class="input-wrapper">
+        <label htmlFor="username">username</label>
+        <input type="text" name="username" id="username" />
+      </div>
+      <div class="input-wrapper">
+        <label htmlFor="password">password</label>
+        <input type="password" name="password" id="password" />
+      </div>
+      <div class="input-wrapper">
+        <label htmlFor="passwordRepeat">repeat password</label>
+        <input type="password" name="passwordRepeat" id="passwordRepeat" />
+      </div>
+      <button type="submit" class="login-button">
+        Sign up
+      </button>
+      <div class="signup-wrapper">
+        Already have an account?
+        <a href="/login">Log in</a>
+        here!
+      </div>
     </div>
-    <button type="submit" class="login-button">
-      Sign up with username
-    </button>
-    <div class="signup-wrapper">
-      Already have an account?
-      <a href="/login">Sign in</a>
-      here!
-    </div>
-  </div>
-  <div class="password-container form-container">
-    <div class="input-wrapper">
-      <label htmlFor="password">password</label>
-      <input type="password" name="password" id="password" />
-    </div>
-    <button type="submit" class="login-button">
-      Sign up
-    </button>
-  </div>
-  <div class="placeholder">
-    <div class="input-wrapper">
-      <input type="text" name="placeholder" id="placeholder" />
-    </div>
-  </div>
+  </form>
 </div>

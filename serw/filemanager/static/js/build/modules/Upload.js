@@ -4,7 +4,6 @@ class Upload {
         this.upload = document.querySelector(".upload");
         this.fileInput = document.querySelector("#file-input");
         this.path = this.getCurrentPath();
-        console.log(this.path);
     }
     getCurrentPath() {
         if (window.location.pathname.split("/")[1] === "files" &&
@@ -24,9 +23,6 @@ class Upload {
             request.onload = () => {
                 if (request.status === 200) {
                     window.location.reload();
-                }
-                else {
-                    console.log(request.responseText);
                 }
             };
             request.open("POST", "/api/upload");

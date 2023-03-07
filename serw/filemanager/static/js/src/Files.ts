@@ -114,7 +114,6 @@ class Files {
       });
       if (this.selected.includes(target)) {
         const currentKey = this.selected.indexOf(target);
-        console.log(currentKey);
         target.classList.remove("selected");
         this.selected = [];
       } else {
@@ -146,7 +145,6 @@ class Files {
         );
         if (lastSelectedKey < key) {
           for (let i = lastSelectedKey; i <= key; i++) {
-            console.log(key);
             this.selected.push(this.folders[i]);
             this.folders[i].classList.add("selected");
           }

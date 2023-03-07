@@ -16,6 +16,8 @@
 }
 .navbar nav {
   position: relative;
+  display: flex;
+  flex-direction: column;
 }
 .navbar nav ul {
   list-style-type: none;
@@ -52,6 +54,11 @@
   border-top-left-radius: 4px;
   transition: all 0.3s ease-in-out;
 }
+.navbar .logout img {
+  opacity: 0.75;
+  width: 32px;
+  transition: 0.4s;
+}
 
 .sidebar {
   border-left: 1px solid #b3b3b3;
@@ -76,7 +83,6 @@
   font-weight: 400;
   -webkit-user-select: none;
      -moz-user-select: none;
-      -ms-user-select: none;
           user-select: none;
 }
 .file img {
@@ -87,7 +93,6 @@
   height: 64px;
   -webkit-user-select: none;
      -moz-user-select: none;
-      -ms-user-select: none;
           user-select: none;
 }
 .file.selected {
@@ -118,7 +123,6 @@
   pointer-events: none;
   -webkit-user-select: none;
      -moz-user-select: none;
-      -ms-user-select: none;
           user-select: none;
 }
 .folder input {
@@ -138,7 +142,6 @@
   height: 64px;
   -webkit-user-select: none;
      -moz-user-select: none;
-      -ms-user-select: none;
           user-select: none;
 }
 .folder.selected {
@@ -202,7 +205,6 @@
 }
 #file-modal form {
   display: block;
-  width: -webkit-max-content;
   width: -moz-max-content;
   width: max-content;
   background-color: #191819;
@@ -230,7 +232,6 @@
   border-bottom: 1px solid #191819;
   -webkit-user-select: none;
      -moz-user-select: none;
-      -ms-user-select: none;
           user-select: none;
   pointer-events: none;
 }

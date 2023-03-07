@@ -1,5 +1,4 @@
 "use strict";
-console.log(file);
 fetch("/image", {
     method: "POST",
     headers: {
@@ -26,8 +25,6 @@ fetch("/image", {
     //     const file = new File([blob], "image2.png", {
     //       type: "image/png",
     //     });
-    //     console.log(file);
-    //     console.log(file1);
     //     const formData = new FormData();
     //     formData.append("image", file);
     //     const request = new XMLHttpRequest();

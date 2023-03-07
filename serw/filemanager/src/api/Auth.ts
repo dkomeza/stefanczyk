@@ -19,11 +19,24 @@ class Auth {
     }
   }
 
-  public async signup(username: string, password: string) {
+  public async signup(
+    username: string,
+    password: string,
+    passwordRepeat: string
+  ) {
     const passwordHash = cypher.cypherPassword(password);
     const { publicKey, privateKey } = cypher.createKeyPair(passwordHash);
+    if (password !== passwordRepeat) {
+      return { error: "Passwords do not match" };
+    }
     try {
-      await this.db.createUser({ username, passwordHash, privateKey });
+      await this.db.createUser({
+        username,
+        passwordHash,
+        privateKey,
+        theme: 1,
+        fontSize: 8,
+      });
       return { username, publicKey };
     } catch (err) {
       return { error: err };

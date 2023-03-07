@@ -48,7 +48,8 @@
   </div>
 </div>
 <script>
-  var path = "{{context.path}}" ? "{{context.path}}" : "/"; var file = "{{context.file}}";
+  var path = "{{context.path}}" ? "{{context.path}}" : ""; var file = "{{context.file}}";
+  var fontSize = "{{context.theme.fontSize}}"; var theme = "{{context.theme.theme}}";
 </script>
 <script src="/js/build/FileEditor.js" type="module">
 </script>

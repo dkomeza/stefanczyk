@@ -692,7 +692,11 @@ class FS {
         if (!fs.existsSync(userHomeDirectory)) {
             return;
         }
-        fs.writeFileSync(userHomeDirectory, content);
+        fs.writeFile(userHomeDirectory, content, (err) => {
+            if (err) {
+                throw err;
+            }
+        });
     }
 }
 exports.default = new FS();

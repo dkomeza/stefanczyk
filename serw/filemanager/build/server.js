@@ -9,6 +9,7 @@ const FS_1 = __importDefault(require("./api/FS"));
 const formidable_1 = __importDefault(require("formidable"));
 const express_handlebars_1 = require("express-handlebars");
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
+const DB_1 = __importDefault(require("./api/DB"));
 const context = {
     files: [],
     folders: [],
@@ -46,7 +47,12 @@ app.get("/login", (req, res) => {
     res.render("Auth/Login.handlebars", { layout: "auth.handlebars" });
 });
 app.get("/signup", (req, res) => {
-    const { username, publicKey } = req.cookies;
+    const { username, publicKey, error } = req.cookies;
+    let errorText = "";
+    if (error) {
+        res.clearCookie("error");
+        errorText = error;
+    }
     if (username && publicKey) {
         Auth_1.default.auth(username, publicKey).then((data) => {
             if (data) {
@@ -55,7 +61,15 @@ app.get("/signup", (req, res) => {
             }
         });
     }
-    res.render("Auth/Signup.handlebars", { layout: "auth.handlebars" });
+    res.render("Auth/Signup.handlebars", {
+        layout: "auth.handlebars",
+        error: errorText,
+    });
+});
+app.get("/logout", (req, res) => {
+    res.clearCookie("username");
+    res.clearCookie("publicKey");
+    res.redirect("/login");
 });
 app.get("/", (req, res) => {
     const { username, publicKey } = req.cookies;
@@ -118,17 +132,17 @@ app.get("/editor/*", (req, res) => {
     const { username, publicKey } = req.cookies;
     const directory = req.url.split("/").splice(2).join("/");
     let finaldir = directory.split("?")[0].replace(/%20/g, " ");
+    finaldir = decodeURIComponent(finaldir);
     const { path } = req.query;
     if (username && publicKey) {
         Auth_1.default.auth(username, publicKey).then((data) => {
             if (data) {
                 const file = finaldir.split("/").pop();
                 const { content } = FS_1.default.getFileContent(username, finaldir);
-                const theme = {};
                 const context = {
                     content: content.split("\n"),
-                    path,
-                    file,
+                    path: (path === null || path === void 0 ? void 0 : path.toString()) || "",
+                    file: file || "",
                 };
                 if ((file === null || file === void 0 ? void 0 : file.endsWith(".png")) || (file === null || file === void 0 ? void 0 : file.endsWith(".jpg"))) {
                     res.render("Content/ImageEditor.handlebars", {
@@ -138,9 +152,21 @@ app.get("/editor/*", (req, res) => {
                     return;
                 }
                 else {
-                    res.render("Content/CodeEditor.handlebars", {
-                        context,
-                        layout: "editor.handlebars",
+                    DB_1.default.getTheme(username).then((data) => {
+                        if (data) {
+                            context.theme = data;
+                        }
+                        else {
+                            context.theme = {
+                                theme: 1,
+                                fontSize: 8,
+                            };
+                            DB_1.default.setTheme(username, 1, 8);
+                        }
+                        res.render("Content/CodeEditor.handlebars", {
+                            context,
+                            layout: "editor.handlebars",
+                        });
                     });
                     return;
                 }
@@ -155,7 +181,6 @@ app.get("/editor/*", (req, res) => {
 });
 app.post("/image", (req, res) => {
     const { directory } = req.body;
-    console.log(directory);
     const { username, publicKey } = req.cookies;
     if (username && publicKey) {
         Auth_1.default.auth(username, publicKey).then((data) => {
@@ -171,14 +196,15 @@ app.post("/image", (req, res) => {
     }
 });
 app.post("/api/signup", (req, res) => {
-    const { username, password } = req.body;
-    Auth_1.default.signup(username, password).then((data) => {
+    const { username, password, passwordRepeat } = req.body;
+    Auth_1.default.signup(username, password, passwordRepeat).then((data) => {
         if (!data.error) {
             res.cookie("username", data.username);
             res.cookie("publicKey", data.publicKey);
             res.redirect("/");
             return;
         }
+        res.cookie("error", data.error);
         res.redirect("/signup");
     });
 });
@@ -225,7 +251,6 @@ app.post("/api/upload", function (req, res) {
             else {
                 fileArr.push(files.files);
             }
-            console.log(fileArr);
             FS_1.default.saveFiles(username.toString(), fileArr, fields.path.toString());
             res.send({ success: true });
         });
@@ -289,10 +314,24 @@ app.post("/api/createFile", (req, res) => {
 app.post("/api/saveFile", (req, res) => {
     const { username, publicKey } = req.cookies;
     const { file, content } = req.body;
-    let finalfile = file.replace(/%20/g, " ");
+    let finalfile = decodeURIComponent(file);
     Auth_1.default.auth(username, publicKey).then((data) => {
         if (data) {
             FS_1.default.saveFile(username, finalfile, content);
+            res.send({ success: true });
+            return;
+        }
+        res.status(401);
+        res.send({ error: "Unauthorized" });
+        return;
+    });
+});
+app.post("/api/theme", function (req, res) {
+    const { username, publicKey } = req.cookies;
+    const { theme, fontSize } = req.body;
+    Auth_1.default.auth(username, publicKey).then((data) => {
+        if (data) {
+            DB_1.default.setTheme(username, theme, fontSize);
             res.send({ success: true });
             return;
         }

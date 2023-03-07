@@ -33,6 +33,8 @@ class Database {
                     username: data.username,
                     passwordHash: data.passwordHash,
                     privateKey: data.privateKey,
+                    theme: 1,
+                    fontSize: 8,
                 }, (err, doc) => {
                     if (err) {
                         reject(err);
@@ -80,6 +82,39 @@ class Database {
                         else {
                             reject("Invalid key pair");
                         }
+                    }
+                    else {
+                        reject("User not found");
+                    }
+                });
+            });
+        });
+    }
+    getTheme(username) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                this.UserDatabase.findOne({ username: username }, (err, doc) => {
+                    if (doc) {
+                        resolve({ theme: doc.theme, fontSize: doc.fontSize });
+                    }
+                    else {
+                        reject("User not found");
+                    }
+                });
+            });
+        });
+    }
+    setTheme(username, theme, fontSize) {
+        return __awaiter(this, void 0, void 0, function* () {
+            return new Promise((resolve, reject) => {
+                this.UserDatabase.findOne({ username: username }, (err, doc) => {
+                    if (doc) {
+                        this.UserDatabase.update({ username: username }, { $set: { theme: theme, fontSize: fontSize } }, {}, (err, numReplaced) => {
+                            if (err) {
+                                reject(err);
+                            }
+                            resolve({ theme: theme, fontSize: fontSize });
+                        });
                     }
                     else {
                         reject("User not found");
