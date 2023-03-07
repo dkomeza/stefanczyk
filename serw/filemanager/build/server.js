@@ -1,4 +1,27 @@
 "use strict";
+var __createBinding = (this && this.__createBinding) || (Object.create ? (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    var desc = Object.getOwnPropertyDescriptor(m, k);
+    if (!desc || ("get" in desc ? !m.__esModule : desc.writable || desc.configurable)) {
+      desc = { enumerable: true, get: function() { return m[k]; } };
+    }
+    Object.defineProperty(o, k2, desc);
+}) : (function(o, m, k, k2) {
+    if (k2 === undefined) k2 = k;
+    o[k2] = m[k];
+}));
+var __setModuleDefault = (this && this.__setModuleDefault) || (Object.create ? (function(o, v) {
+    Object.defineProperty(o, "default", { enumerable: true, value: v });
+}) : function(o, v) {
+    o["default"] = v;
+});
+var __importStar = (this && this.__importStar) || function (mod) {
+    if (mod && mod.__esModule) return mod;
+    var result = {};
+    if (mod != null) for (var k in mod) if (k !== "default" && Object.prototype.hasOwnProperty.call(mod, k)) __createBinding(result, mod, k);
+    __setModuleDefault(result, mod);
+    return result;
+};
 var __importDefault = (this && this.__importDefault) || function (mod) {
     return (mod && mod.__esModule) ? mod : { "default": mod };
 };
@@ -10,6 +33,7 @@ const formidable_1 = __importDefault(require("formidable"));
 const express_handlebars_1 = require("express-handlebars");
 const cookie_parser_1 = __importDefault(require("cookie-parser"));
 const DB_1 = __importDefault(require("./api/DB"));
+const fs = __importStar(require("fs"));
 const context = {
     files: [],
     folders: [],
@@ -139,12 +163,13 @@ app.get("/editor/*", (req, res) => {
             if (data) {
                 const file = finaldir.split("/").pop();
                 const { content } = FS_1.default.getFileContent(username, finaldir);
-                const context = {
-                    content: content.split("\n"),
-                    path: (path === null || path === void 0 ? void 0 : path.toString()) || "",
-                    file: file || "",
-                };
                 if ((file === null || file === void 0 ? void 0 : file.endsWith(".png")) || (file === null || file === void 0 ? void 0 : file.endsWith(".jpg"))) {
+                    const data = FS_1.default.getImage(username, finaldir);
+                    const context = {
+                        path: path,
+                        file: file,
+                        data,
+                    };
                     res.render("Content/ImageEditor.handlebars", {
                         context,
                         layout: "editor.handlebars",
@@ -153,6 +178,11 @@ app.get("/editor/*", (req, res) => {
                 }
                 else {
                     DB_1.default.getTheme(username).then((data) => {
+                        const context = {
+                            content: content.split("\n"),
+                            path: (path === null || path === void 0 ? void 0 : path.toString()) || "",
+                            file: file || "",
+                        };
                         if (data) {
                             context.theme = data;
                         }
@@ -326,6 +356,28 @@ app.post("/api/saveFile", (req, res) => {
         return;
     });
 });
+app.post("/api/saveImage", (req, res) => {
+    const { username, publicKey } = req.cookies;
+    Auth_1.default.auth(username, publicKey).then((data) => {
+        if (data) {
+            const form = (0, formidable_1.default)({
+                keepExtensions: true,
+                multiples: true,
+                uploadDir: "./temp",
+                maxFileSize: 5 * 1024 * 1024 * 1024,
+            });
+            form.parse(req, function (err, fields, files) {
+                const { path } = fields;
+                FS_1.default.saveImage(username, files, path.toString());
+                res.send({ success: true });
+            });
+            return;
+        }
+        res.status(401);
+        res.send({ error: "Unauthorized" });
+        return;
+    });
+});
 app.post("/api/theme", function (req, res) {
     const { username, publicKey } = req.cookies;
     const { theme, fontSize } = req.body;
@@ -339,6 +391,29 @@ app.post("/api/theme", function (req, res) {
         res.send({ error: "Unauthorized" });
         return;
     });
+});
+app.post("/api/zip", function (req, res) {
+    const { username, publicKey } = req.cookies;
+    const { directory, files } = req.body;
+    let finaldir = directory.replace(/%20/g, " ");
+    Auth_1.default.auth(username, publicKey).then((data) => {
+        if (data) {
+            const { path } = FS_1.default.zip(username, finaldir, files);
+            res.send({ path });
+            return;
+        }
+        res.status(401);
+        res.send({ error: "Unauthorized" });
+        return;
+    });
+});
+app.get("/api/download", function (req, res) {
+    const { file } = req.query;
+    let finalfile = decodeURIComponent(file.toString());
+    res.download(finalfile);
+    setTimeout(() => {
+        fs.rmSync(finalfile);
+    }, 3600000);
 });
 app.post("/api/delete", function (req, res) {
     const { username, publicKey } = req.cookies;

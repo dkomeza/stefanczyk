@@ -1,9 +1,14 @@
-<link rel="stylesheet" href="/scss/Content/FileEditor/FileEditor.css" />
+<link rel="stylesheet" href="/scss/Content/FileEditor/ImageEditor.css" />
 <div class="container" id="image-editor">
   <div class="nav">
     <div class="nav-item">
       <button class="btn btn-link" id="save-file">
         <i class="fa-solid fa-floppy-disk"></i>
+      </button>
+    </div>
+    <div class="nav-item">
+      <button class="btn btn-link" id="filter-button">
+        Show filters
       </button>
     </div>
     <div class="nav-item">
@@ -13,14 +18,57 @@
     </div>
   </div>
   <div id="editor">
-    <div id="image"></div>
+    <aside>
+      <ul>
+        <li class="normal filter-image" data-filter="">
+          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
+        </li>
+        <li class="sepia filter-image" data-filter="sepia(100%)">
+          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
+        </li>
+        <li class="grayscale filter-image" data-filter="grayscale(100%)">
+          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
+        </li>
+        <li class="invert filter-image" data-filter="invert(100%)">
+          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
+        </li>
+        <li class="blur filter-image" data-filter="blur(4px)"
+          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
+        </li>
+        <li class="brightness filter-image" data-filter="brightness(200%)">
+          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
+        </li>
+        <li class="contrast filter-image" data-filter="contrast(200%)">
+          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
+        </li>
+        <li class="hue-rotate filter-image" data-filter="hue-rotate(90deg)">
+          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
+        </li>
+        <li class="saturate filter-image" data-filter="saturate(200%)">
+          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
+        </li>
+      </ul>
+    </aside>
+    <div id="image">
+      <img
+        id="preview"
+        src="data:image/png;base64, {{context.data}}"
+        alt=""
+        srcset=""
+      />
+      <canvas id="output"></canvas>
+    </div>
+    <img
+      id="source"
+      src="data:image/png;base64, {{context.data}}"
+      alt=""
+      srcset=""
+    />
   </div>
-  <div id="content">
-    <canvas id="image-canvas" width="1000" height="800"></canvas>
-  </div>
+
 </div>
 <script>
-  var path = "{{context.path}}"; var file = "{{context.file}}"; var image = "{{context.data}}";
+  var path = "{{context.path}}" ? "{{context.path}}" : ""; var file = "{{context.file}}";
 </script>
 <script src="/js/build/ImageEditor.js" type="module">
 </script>

@@ -24,6 +24,7 @@ var __importStar = (this && this.__importStar) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const fs = __importStar(require("fs"));
+const child_process = __importStar(require("child_process"));
 const fileTypes = [
     "3g2",
     "3ga",
@@ -536,7 +537,7 @@ class FS {
         let finalFileName = this.checkExits(path);
         if (!finalFileName)
             return;
-        fs.writeFileSync(`${finalFileName}`, "Super");
+        fs.writeFileSync(`${finalFileName}`, "");
     }
     delete(username, directory, files) {
         const userHomeDirectory = `./uploads/${username}`;
@@ -697,6 +698,36 @@ class FS {
                 throw err;
             }
         });
+    }
+    saveImage(username, file, path) {
+        let userHomeDirectory = `./uploads/${username}`;
+        if (path) {
+            userHomeDirectory = `${userHomeDirectory}/${path}`;
+        }
+        if (!fs.existsSync(userHomeDirectory)) {
+            return;
+        }
+        const newName = file.files.originalFilename;
+        const oldPath = file.files.filepath;
+        fs.copyFileSync(oldPath, `${userHomeDirectory}/${newName}`);
+    }
+    zip(username, finaldir, files) {
+        let userHomeDirectory = `./uploads/${username}`;
+        if (finaldir) {
+            userHomeDirectory = `${userHomeDirectory}/${finaldir}`;
+        }
+        if (!fs.existsSync(userHomeDirectory)) {
+            return { path: "" };
+        }
+        const zipName = `archive-${Date.now()}.zip`;
+        child_process.execSync(`zip -r ${zipName} ${files.join(" ")}`, {
+            cwd: userHomeDirectory,
+        });
+        child_process.execSync(`mv ${zipName} /home/ubuntu/Desktop/School/stefanczyk/serw/filemanager/temp/`, { cwd: userHomeDirectory });
+        return {
+            path: "/home/ubuntu/Desktop/School/stefanczyk/serw/filemanager/temp/" +
+                zipName,
+        };
     }
 }
 exports.default = new FS();

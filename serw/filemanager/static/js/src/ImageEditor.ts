@@ -1,52 +1,71 @@
 declare var path: string | undefined;
 declare var file: string;
 
-fetch("/image", {
-  method: "POST",
-  headers: {
-    "Content-Type": "application/json",
-  },
-  body: JSON.stringify({
-    directory: path + "/" + file,
-  }),
-})
-  .then((response) => response.text())
-  .then((data) => data.toString())
-  .then((data) => {
-    const image = new Image();
-    image.src = "data:image/png;base64, " + data;
-    document.body.append(image);
-    const canvas = document.getElementById("image-canvas") as HTMLCanvasElement;
-    const context = canvas.getContext("2d")!;
-    context.filter = "blur(4px)";
-    context.fillStyle = "#000000";
-    context.drawImage(image, 0, 0);
-    const file1 = dataURLtoFile(canvas.toDataURL("image/png"), "image3.png");
-    // canvas.toBlob((blob) => {
-    //   if (blob) {
-    //     const file = new File([blob], "image2.png", {
-    //       type: "image/png",
-    //     });
-    //     const formData = new FormData();
-    //     formData.append("image", file);
-    //     const request = new XMLHttpRequest();
-    //     formData.append("path", "/");
-    //     request.open("POST", "/api/upload");
-    //     request.send(formData);
-    //   }
-    // });
-  });
+const ext = getFileExtension();
+const closeButton = document.querySelector("#cancel-file") as HTMLButtonElement;
+const saveButton = document.querySelector("#save-file") as HTMLButtonElement;
+const filterButton = document.querySelector(
+  "#filter-button"
+) as HTMLButtonElement;
+const editor = document.querySelector("#editor")!;
+const aside = document.querySelector("aside")!;
+const image = document.querySelector("#preview") as HTMLImageElement;
+const source = document.querySelector("#source") as HTMLImageElement;
+const canvas = document.querySelector("#output") as HTMLCanvasElement;
 
-function dataURLtoFile(dataurl: string, filename: string) {
-  var arr = dataurl.split(","),
-    mime = arr[0].match(/:(.*?);/)![1],
-    bstr = atob(arr[1]),
-    n = bstr.length,
-    u8arr = new Uint8Array(n);
+canvas.width = source.width;
+canvas.height = source.height;
 
-  while (n--) {
-    u8arr[n] = bstr.charCodeAt(n);
-  }
+const ctx = canvas.getContext("2d")!;
+createNavEvents();
+addFilterEvents();
 
-  return new File([u8arr], filename, { type: mime });
+function getFileExtension() {
+  return file.split(".").pop() || file;
 }
+
+function createNavEvents() {
+  closeButton.onclick = () => {
+    window.location.href = `/files/${path}`;
+  };
+  saveButton.onclick = () => {
+    saveFile();
+  };
+  filterButton.onclick = () => {
+    aside.classList.toggle("hidden");
+  };
+}
+
+function addFilterEvents() {
+  const filterButtons = document.querySelectorAll(
+    ".filter-image"
+  ) as NodeListOf<HTMLButtonElement>;
+  filterButtons.forEach((button) => {
+    button.onclick = () => {
+      const filter = button.dataset.filter;
+      image.style.filter = filter || "none";
+    };
+  });
+}
+
+function saveFile() {
+  ctx.filter = image.style.filter;
+  console.log(ctx.filter);
+  ctx.drawImage(source, 0, 0);
+  canvas.toBlob((blob) => {
+    const request = new XMLHttpRequest();
+    const formData = new FormData();
+    const newFile = new File([blob!], file, {
+      type: "image/png",
+    });
+    formData.append("files", newFile);
+    formData.append("path", path || "");
+    request.open("POST", "/api/saveImage");
+    request.send(formData);
+    request.onload = () => {
+      window.location.reload();
+    };
+  });
+}
+
+// Path: static/js/src/ImageEditor.ts

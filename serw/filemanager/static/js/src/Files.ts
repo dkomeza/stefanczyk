@@ -226,6 +226,9 @@ class Files {
       ) as HTMLElement;
       renameFile.style.display = "block";
     }
+    const zipFile = document.querySelector(
+      "#contextMenu-zipFile"
+    ) as HTMLElement;
   }
 
   private handleContextMenu() {
@@ -241,6 +244,9 @@ class Files {
     ) as HTMLElement;
     const renameFile = document.querySelector(
       "#contextMenu-renameFile"
+    ) as HTMLElement;
+    const zipFile = document.querySelector(
+      "#contextMenu-zipFile"
     ) as HTMLElement;
 
     createFolder.onclick = () => FileUtils.createFolder(this.directory);
@@ -264,6 +270,16 @@ class Files {
         );
       });
       FileUtils.renameFile(this.directory, this.selected[0]);
+    };
+
+    zipFile.onclick = () => {
+      const files: string[] = [];
+      this.selected.forEach((file) => {
+        files.push(
+          (file.querySelector(".full-name") as HTMLElement).innerText!
+        );
+      });
+      FileUtils.zipFiles(this.directory, [...new Set(files)]);
     };
   }
 

@@ -52,6 +52,25 @@ class FileUtils {
             }
         };
     }
+    zipFiles(directory, files) {
+        fetch("/api/zip", {
+            method: "POST",
+            headers: {
+                "Content-Type": "application/json",
+            },
+            body: JSON.stringify({
+                directory: directory,
+                files: files,
+            }),
+        })
+            .then((res) => res.json())
+            .then((data) => {
+            const link = document.createElement("a");
+            link.href = `/api/download?file=${data.path}`;
+            link.download = "archive.zip";
+            link.click();
+        });
+    }
     handleRename(directory, oldname, newname) {
         fetch("/api/rename", {
             method: "POST",

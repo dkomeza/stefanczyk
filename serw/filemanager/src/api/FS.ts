@@ -1,4 +1,5 @@
 import * as fs from "fs";
+import * as child_process from "child_process";
 
 interface File {
   size: number;
@@ -538,7 +539,7 @@ class FS {
       : `${userHomeDirectory}/${fileName}`;
     let finalFileName = this.checkExits(path);
     if (!finalFileName) return;
-    fs.writeFileSync(`${finalFileName}`, "Super");
+    fs.writeFileSync(`${finalFileName}`, "");
   }
 
   public delete(username: string, directory: string, files: string[]) {
@@ -728,6 +729,42 @@ class FS {
         throw err;
       }
     });
+  }
+
+  public saveImage(username: string, file: any, path: string) {
+    let userHomeDirectory = `./uploads/${username}`;
+    if (path) {
+      userHomeDirectory = `${userHomeDirectory}/${path}`;
+    }
+    if (!fs.existsSync(userHomeDirectory)) {
+      return;
+    }
+    const newName = file.files.originalFilename;
+    const oldPath = file.files.filepath;
+    fs.copyFileSync(oldPath, `${userHomeDirectory}/${newName}`);
+  }
+
+  public zip(username: string, finaldir: string, files: string[]) {
+    let userHomeDirectory = `./uploads/${username}`;
+    if (finaldir) {
+      userHomeDirectory = `${userHomeDirectory}/${finaldir}`;
+    }
+    if (!fs.existsSync(userHomeDirectory)) {
+      return { path: "" };
+    }
+    const zipName = `archive-${Date.now()}.zip`;
+    child_process.execSync(`zip -r ${zipName} ${files.join(" ")}`, {
+      cwd: userHomeDirectory,
+    });
+    child_process.execSync(
+      `mv ${zipName} /home/ubuntu/Desktop/School/stefanczyk/serw/filemanager/temp/`,
+      { cwd: userHomeDirectory }
+    );
+    return {
+      path:
+        "/home/ubuntu/Desktop/School/stefanczyk/serw/filemanager/temp/" +
+        zipName,
+    };
   }
 }
 

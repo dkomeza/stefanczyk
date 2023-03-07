@@ -6,6 +6,8 @@ import { engine } from "express-handlebars";
 import cookieParser from "cookie-parser";
 import DB from "./api/DB";
 
+import * as fs from "fs";
+
 interface FileInterface {
   name: string;
   modified: Date;
@@ -171,12 +173,14 @@ app.get("/editor/*", (req, res) => {
       if (data) {
         const file = finaldir.split("/").pop();
         const { content } = FS.getFileContent(username, finaldir);
-        const context: fileContext = {
-          content: content.split("\n"),
-          path: path?.toString() || "",
-          file: file || "",
-        };
+
         if (file?.endsWith(".png") || file?.endsWith(".jpg")) {
+          const data = FS.getImage(username, finaldir);
+          const context = {
+            path: path,
+            file: file,
+            data,
+          };
           res.render("Content/ImageEditor.handlebars", {
             context,
             layout: "editor.handlebars",
@@ -184,6 +188,11 @@ app.get("/editor/*", (req, res) => {
           return;
         } else {
           DB.getTheme(username).then((data: any) => {
+            const context: fileContext = {
+              content: content.split("\n"),
+              path: path?.toString() || "",
+              file: file || "",
+            };
             if (data) {
               context.theme = data;
             } else {
@@ -361,6 +370,29 @@ app.post("/api/saveFile", (req, res) => {
   });
 });
 
+app.post("/api/saveImage", (req, res) => {
+  const { username, publicKey } = req.cookies;
+  Auth.auth(username, publicKey).then((data) => {
+    if (data) {
+      const form = formidable({
+        keepExtensions: true,
+        multiples: true,
+        uploadDir: "./temp",
+        maxFileSize: 5 * 1024 * 1024 * 1024,
+      });
+      form.parse(req, function (err, fields, files) {
+        const { path } = fields;
+        FS.saveImage(username, files, path.toString());
+        res.send({ success: true });
+      });
+      return;
+    }
+    res.status(401);
+    res.send({ error: "Unauthorized" });
+    return;
+  });
+});
+
 app.post("/api/theme", function (req, res) {
   const { username, publicKey } = req.cookies;
   const { theme, fontSize } = req.body;
@@ -374,6 +406,31 @@ app.post("/api/theme", function (req, res) {
     res.send({ error: "Unauthorized" });
     return;
   });
+});
+
+app.post("/api/zip", function (req, res) {
+  const { username, publicKey } = req.cookies;
+  const { directory, files } = req.body;
+  let finaldir = directory.replace(/%20/g, " ");
+  Auth.auth(username, publicKey).then((data) => {
+    if (data) {
+      const { path } = FS.zip(username, finaldir, files)!;
+      res.send({ path });
+      return;
+    }
+    res.status(401);
+    res.send({ error: "Unauthorized" });
+    return;
+  });
+});
+
+app.get("/api/download", function (req, res) {
+  const { file } = req.query;
+  let finalfile = decodeURIComponent(file!.toString());
+  res.download(finalfile);
+  setTimeout(() => {
+    fs.rmSync(finalfile);
+  }, 3600000);
 });
 
 app.post("/api/delete", function (req, res) {

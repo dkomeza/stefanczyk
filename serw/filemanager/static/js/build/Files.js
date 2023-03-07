@@ -217,12 +217,14 @@ class Files {
             const renameFile = document.querySelector("#contextMenu-renameFile");
             renameFile.style.display = "block";
         }
+        const zipFile = document.querySelector("#contextMenu-zipFile");
     }
     handleContextMenu() {
         const createFolder = document.querySelector("#contextMenu-createNewFolder");
         const createFile = document.querySelector("#contextMenu-createNewFile");
         const deleteFile = document.querySelector("#contextMenu-deleteFile");
         const renameFile = document.querySelector("#contextMenu-renameFile");
+        const zipFile = document.querySelector("#contextMenu-zipFile");
         createFolder.onclick = () => FileUtils.createFolder(this.directory);
         createFile.onclick = () => FileUtils.createFile(this.directory);
         deleteFile.onclick = () => {
@@ -238,6 +240,13 @@ class Files {
                 files.push(file.querySelector(".full-name").innerText);
             });
             FileUtils.renameFile(this.directory, this.selected[0]);
+        };
+        zipFile.onclick = () => {
+            const files = [];
+            this.selected.forEach((file) => {
+                files.push(file.querySelector(".full-name").innerText);
+            });
+            FileUtils.zipFiles(this.directory, [...new Set(files)]);
         };
     }
     getTranslate(coords) {
