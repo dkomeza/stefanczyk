@@ -50,6 +50,9 @@ export default class Game {
         this.board.makeMove(data.data);
         this.board.removePawn(data.removePawns);
       });
+      socket.on("timer", (data) => {
+        console.log(data);
+      });
     }
   }
 

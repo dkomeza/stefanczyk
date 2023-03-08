@@ -52,10 +52,12 @@ export default class Game {
     });
     players.white.on("move", (data) => {
       const removePawns = checkers.playMove(data);
+      checkers.createTimer(players.black, players.white);
       io.to(room).emit("move", { data, removePawns });
     });
     players.black.on("move", (data) => {
       const removePawns = checkers.playMove(data);
+      checkers.createTimer(players.white, players.black);
       io.to(room).emit("move", { data, removePawns });
     });
     players.white.on("legalMoves", (data) => {
@@ -68,7 +70,8 @@ export default class Game {
 }
 
 class Checkers {
-  timer = 0;
+  timer: NodeJS.Timer | null = null;
+  time = 60;
   board: number[][] = [
     // 0 - empty, 1 - white, 2 - black, 3 - whiteQ, 4 - blackQ
     [0, 0, 0, 0, 0, 0, 0, 0],
@@ -314,7 +317,19 @@ class Checkers {
     player.emit("legalMoves", goodMoves);
   }
 
-  gameTimer() {
-    
+  createTimer(player: Socket, opponent: Socket) {
+    this.time = 20;
+    if (this.timer) {
+      clearInterval(this.timer);
+    }
+    this.timer = setInterval(() => {
+      this.time--;
+      if (this.time === 0) {
+        this.turn = this.turn === 0 ? 1 : 0;
+        player.emit("message", "You ran out of time!");
+        clearInterval(this.timer!);
+      }
+      opponent.emit("timer", this.time);
+    }, 1000);
   }
 }
