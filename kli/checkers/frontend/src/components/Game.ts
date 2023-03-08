@@ -1,5 +1,6 @@
 import * as THREE from "three";
 import { Socket } from "socket.io-client";
+import TWEEN from "@tweenjs/tween.js";
 
 export default class Game {
   scene: Scene;
@@ -42,9 +43,12 @@ export default class Game {
       this.socket = socket;
       socket.emit("ready", "ready");
       socket.on("position", (data) => {
-        console.table(data);
         this.boardPosition = data;
         this.board.updateBoard(data);
+      });
+      socket.on("move", (data) => {
+        this.board.makeMove(data.data);
+        this.board.removePawn(data.removePawns);
       });
     }
   }
@@ -57,6 +61,9 @@ export default class Game {
       if (object.name === "pawn" && object.userData.color === this.color) {
         this.selectedPawn = object;
         this.board.hideLegalMoves();
+        const material = (object as THREE.Mesh)
+          .material as THREE.MeshPhongMaterial;
+        material.emissive.setHex(0xffff00);
         this.board.showLegalMoves(
           this.selectedPawn.userData.square,
           this.socket!
@@ -75,6 +82,7 @@ export default class Game {
 
   render() {
     // this.scene.controls.update();
+    TWEEN.update();
     this.scene.renderer.render(this.scene.scene, this.scene.camera);
   }
 }
@@ -143,6 +151,7 @@ class Scene {
 }
 
 class Board extends THREE.Object3D {
+  board: Pawn[][] = [];
   constructor(scene: Scene) {
     super();
     this.createBoard();
@@ -173,12 +182,15 @@ class Board extends THREE.Object3D {
           this.add(pawn);
         } else if (boardPosition[i][j] === 2) {
           const pawn = new Pawn("black", i, j, false);
+          // this.board[i][j] = pawn;
           this.add(pawn);
         } else if (boardPosition[i][j] === 3) {
           const pawn = new Pawn("white", i, j, true);
+          // this.board[i][j] = pawn;
           this.add(pawn);
         } else if (boardPosition[i][j] === 4) {
           const pawn = new Pawn("black", i, j, true);
+          // this.board[i][j] = pawn;
           this.add(pawn);
         }
       }
@@ -188,7 +200,6 @@ class Board extends THREE.Object3D {
   showLegalMoves(square: { x: number; y: number }, socket: Socket) {
     socket.emit("legalMoves", square);
     socket.on("legalMoves", (data) => {
-      console.log(data);
       for (let i = 0; i < data.length; i++) {
         const index = data[i].y * 8 + data[i].x;
         const block = this.children[index] as Square;
@@ -206,6 +217,53 @@ class Board extends THREE.Object3D {
       ).emissive.set(0x000000);
       this.children[i].userData.available = false;
     }
+    const pawns = this.children.filter((child) => child.name === "pawn");
+    for (let i = 0; i < pawns.length; i++) {
+      const material = (pawns[i] as THREE.Mesh)
+        .material as THREE.MeshPhongMaterial;
+      material.emissive.set(0x000000);
+    }
+  }
+
+  makeMove(data: {
+    from: { x: number; y: number };
+    to: { x: number; y: number };
+  }) {
+    const pawns = this.children.filter((child) => child.name === "pawn");
+    pawns.forEach((pawn) => {
+      if (
+        pawn.userData.square.x === data.from.x &&
+        pawn.userData.square.y === data.from.y
+      ) {
+        new TWEEN.Tween(pawn.position)
+          .to(
+            {
+              x: data.to.y * 2,
+              z: data.to.x * 2,
+            },
+            500
+          )
+          .easing(TWEEN.Easing.Quadratic.Out)
+          .start();
+        pawn.userData.square.x = data.to.x;
+        pawn.userData.square.y = data.to.y;
+        // pawn.position.set(data.to.y * 2, 0.5, data.to.x * 2);
+      }
+    });
+  }
+
+  removePawn(data: { x: number; y: number }[]) {
+    const pawns = this.children.filter((child) => child.name === "pawn");
+    data.forEach((square) => {
+      pawns.forEach((pawn) => {
+        if (
+          pawn.userData.square.x === square.x &&
+          pawn.userData.square.y === square.y
+        ) {
+          this.remove(pawn);
+        }
+      });
+    });
   }
 
   private getColor(i: number, j: number) {
