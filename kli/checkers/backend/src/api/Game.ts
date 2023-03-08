@@ -314,5 +314,7 @@ class Checkers {
     player.emit("legalMoves", goodMoves);
   }
 
-  gameTimer() {}
+  gameTimer() {
+    
+  }
 }

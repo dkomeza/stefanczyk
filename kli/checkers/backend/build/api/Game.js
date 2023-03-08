@@ -303,5 +303,6 @@ class Checkers {
         const goodMoves = legalMoves.filter((move) => move.x !== -1 && move.y !== -1);
         player.emit("legalMoves", goodMoves);
     }
-    gameTimer() { }
+    gameTimer() {
+    }
 }
