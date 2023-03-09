@@ -14,6 +14,9 @@ const game = new Game(io);
 io.on("connection", (socket) => {
   const name = socket.handshake.query.name;
   game.addToQueue(socket, name!.toString());
+  socket.on("disconnect", () => {
+    game.removeFromQueue(socket);
+  });
 });
 
 app.use(express.json());

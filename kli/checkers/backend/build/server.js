@@ -16,6 +16,9 @@ const game = new Game_js_1.default(io);
 io.on("connection", (socket) => {
     const name = socket.handshake.query.name;
     game.addToQueue(socket, name.toString());
+    socket.on("disconnect", () => {
+        game.removeFromQueue(socket);
+    });
 });
 app.use(express_1.default.json());
 app.use(express_1.default.urlencoded({ extended: true }));
