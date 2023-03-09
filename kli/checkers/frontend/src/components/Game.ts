@@ -7,6 +7,7 @@ export default class Game {
   board: Board;
   reycaster: Reycaster;
   selectedPawn: THREE.Object3D | null = null;
+  overlay: Overlay = new Overlay();
   boardPosition: number[] = [];
   color: "white" | "black" | null = null;
   socket: Socket | null = null;
@@ -47,11 +48,12 @@ export default class Game {
         this.board.updateBoard(data);
       });
       socket.on("move", (data) => {
-        this.board.makeMove(data.data);
+        this.overlay.hideOpponentTime();
+        this.board.makeMove(data.data, data.queen);
         this.board.removePawn(data.removePawns);
       });
       socket.on("timer", (data) => {
-        console.log(data);
+        this.overlay.updateOpponentTime(data);
       });
     }
   }
@@ -84,7 +86,6 @@ export default class Game {
   }
 
   render() {
-    // this.scene.controls.update();
     TWEEN.update();
     this.scene.renderer.render(this.scene.scene, this.scene.camera);
   }
@@ -228,29 +229,47 @@ class Board extends THREE.Object3D {
     }
   }
 
-  makeMove(data: {
-    from: { x: number; y: number };
-    to: { x: number; y: number };
-  }) {
+  makeMove(
+    data: {
+      from: { x: number; y: number };
+      to: { x: number; y: number };
+    },
+    queen: boolean
+  ) {
     const pawns = this.children.filter((child) => child.name === "pawn");
     pawns.forEach((pawn) => {
       if (
         pawn.userData.square.x === data.from.x &&
         pawn.userData.square.y === data.from.y
       ) {
-        new TWEEN.Tween(pawn.position)
-          .to(
-            {
-              x: data.to.y * 2,
-              z: data.to.x * 2,
-            },
-            500
-          )
-          .easing(TWEEN.Easing.Quadratic.Out)
-          .start();
-        pawn.userData.square.x = data.to.x;
-        pawn.userData.square.y = data.to.y;
-        // pawn.position.set(data.to.y * 2, 0.5, data.to.x * 2);
+        if (queen) {
+          new TWEEN.Tween(pawn.position)
+            .to(
+              {
+                x: data.to.y * 2,
+                y: 1,
+                z: data.to.x * 2,
+              },
+              500
+            )
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
+          pawn.userData.square.x = data.to.x;
+          pawn.userData.square.y = data.to.y;
+        } else {
+          new TWEEN.Tween(pawn.position)
+            .to(
+              {
+                x: data.to.y * 2,
+                z: data.to.x * 2,
+              },
+              500
+            )
+            .easing(TWEEN.Easing.Quadratic.Out)
+            .start();
+          pawn.userData.square.x = data.to.x;
+          pawn.userData.square.y = data.to.y;
+        }
       }
     });
   }
@@ -340,5 +359,31 @@ class Reycaster extends THREE.Raycaster {
     const intersects = this.intersectObjects(this.scene.children);
     if (!intersects.length) return;
     return intersects[0].object;
+  }
+}
+
+class Overlay {
+  overlay: HTMLDivElement;
+  constructor() {
+    this.overlay = document.querySelector<HTMLDivElement>("#overlay")!;
+    this.overlay.classList.add("hidden");
+  }
+  showOpponentTime(time: number) {
+    this.overlay.classList.remove("hidden");
+    this.updateOpponentTime(time);
+  }
+  hideOpponentTime() {
+    this.overlay.classList.add("hidden");
+  }
+  updateOpponentTime(time: number) {
+    if (this.overlay.classList.contains("hidden")) {
+      this.showOpponentTime(time);
+      return;
+    }
+    if (time <= 0) {
+      this.hideOpponentTime();
+    }
+    const timeElement = document.querySelector(".opponent-time") as HTMLElement;
+    timeElement.innerText = `Opponent time: ${time.toString()}s`;
   }
 }

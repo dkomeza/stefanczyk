@@ -39,6 +39,7 @@ export default class Network {
       this.color = data;
     });
     socket.on("start", () => {
+      console.log("No chuj no");
       this.loading?.remove();
       this.callback(this.color!, socket);
     });
