@@ -39,19 +39,48 @@ const io = new socket_io_1.Server(server, {
     path: "/socket.io",
 });
 io.on("connection", (socket) => {
+    const date = new Date();
+    const time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+    const username = socket.handshake.query.username;
+    socket.broadcast.emit("message", {
+        content: `User ${username} has joined the chat`,
+        date: time,
+        type: "connect",
+        from: "server",
+    });
     socket.on("message", (message) => {
-        const date = new Date().getTime().toLocaleString();
+        const date = new Date();
+        const hour = date.getHours() + 1 < 10
+            ? `0${date.getHours() + 1}`
+            : (date.getHours() + 1).toString();
+        const minute = date.getMinutes() < 10
+            ? `0${date.getMinutes()}`
+            : date.getMinutes().toString();
+        const seccond = date.getSeconds() < 10
+            ? `0${date.getSeconds()}`
+            : date.getSeconds().toString();
+        const time = `${hour}:${minute}:${seccond}`;
         socket.broadcast.emit("message", {
             content: message.message,
             from: message.username,
-            date: date,
+            date: time,
             type: "incoming",
         });
-        socket.send("message", {
+        socket.emit("message", {
             content: message.message,
             from: message.username,
-            date: date,
+            date: time,
             type: "outgoing",
+        });
+    });
+    socket.on("disconnect", () => {
+        const date = new Date();
+        const time = `${date.getHours()}:${date.getMinutes()}:${date.getSeconds()}`;
+        socket.broadcast.emit("message", {
+            content: `User ${username} has left the chat`,
+            date: time,
+            type: "disconnect",
+            from: "server",
         });
     });
 });

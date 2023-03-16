@@ -1,48 +1,43 @@
-import React, { useLayoutEffect, useRef, useState } from "react";
+import React, {
+  FormEvent,
+  useEffect,
+  useLayoutEffect,
+  useRef,
+  useState,
+} from "react";
+// import io from "./Socket";
+import socket from "./Socket";
+
 import { io, Socket } from "socket.io-client";
 
-import Message from "./Message";
+import Messages from "./Messages";
+import { Message } from "./Message";
 
 function Chat(props: { username: string }) {
   const [messages, setMessages] = useState<Message[]>();
   const messageRef = useRef<HTMLInputElement | null>(null);
   const username = props.username;
-
-  let socket: Socket;
-
-  useLayoutEffect(() => {
-    socket = io("", { path: "/socket.io" });
-    socket.on("connect", () => {
-      console.log("Connected to server");
-    });
-    socket.on("message", (message) => {
-      console.log(message);
-      if (messages) {
-        setMessages([...(messages as []), message]);
-      } else {
-        setMessages([message]);
-      }
-      console.log(messages);
-    });
+  socket.assignState(messages, setMessages);
+  useEffect(() => {
+    socket.connect(username);
   }, []);
 
-  const sendMessage = () => {
+  const sendMessage = (e: FormEvent) => {
+    e.preventDefault();
     const message = messageRef.current?.value;
     if (message) {
-      socket.emit("message", { message, username });
+      socket.send(message);
     }
   };
 
   return (
-    <main>
-      {messages && messages.map((message) => <Message message={message} />)}
-      <div className="input">
+    <div className="msg">
+      <form className="input" onSubmit={(e) => sendMessage(e)}>
         <input type="text" name="" id="" ref={messageRef} />
-        <button type="submit" onClick={sendMessage}>
-          Send
-        </button>
-      </div>
-    </main>
+        <button type="submit">Send</button>
+      </form>
+      <Messages messages={messages} />
+    </div>
   );
 }
 
