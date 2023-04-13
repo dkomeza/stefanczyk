@@ -47,6 +47,9 @@ export default class Game {
         this.boardPosition = data;
         this.board.updateBoard(data);
       });
+      socket.on("endTime", (data) => {
+        this.overlay.hideOpponentTime();
+      });
       socket.on("move", (data) => {
         this.overlay.hideOpponentTime();
         this.board.makeMove(data.data, data.queen);
@@ -380,7 +383,7 @@ class Overlay {
       this.showOpponentTime(time);
       return;
     }
-    if (time <= 0) {
+    if (time <= 0 || time >= 20) {
       this.hideOpponentTime();
     }
     const timeElement = document.querySelector(".opponent-time") as HTMLElement;

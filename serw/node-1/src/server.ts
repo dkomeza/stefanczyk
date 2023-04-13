@@ -10,7 +10,7 @@ const server = http.createServer((req, res) => {
 });
 
 const io = new Server(server, {
-  path: "/socket.io",
+  path: "/socket",
 });
 
 io.on("connection", (socket) => {
@@ -69,7 +69,6 @@ function useStatic(
   res: http.ServerResponse
 ) {
   let url = decodeURI(req.url || "/");
-  console.log(url);
   if (url?.endsWith("/")) {
     url += "index.html";
   }
@@ -114,4 +113,4 @@ function handleFileType(fileName: string) {
   }
 }
 
-server.listen(5000);
+server.listen(3000);

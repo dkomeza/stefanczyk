@@ -92,14 +92,14 @@ class Checkers {
   time = 20;
   board: number[][] = [
     // 0 - empty, 1 - white, 2 - black, 3 - whiteQ, 4 - blackQ
-    [0, 0, 0, 2, 0, 2, 0, 2],
-    [2, 0, 1, 0, 2, 0, 2, 0],
+    [0, 2, 0, 2, 0, 2, 0, 2],
+    [2, 0, 2, 0, 2, 0, 2, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
     [0, 0, 0, 0, 0, 0, 0, 0],
-    [0, 2, 0, 1, 0, 1, 0, 1],
-    [1, 0, 0, 0, 1, 0, 1, 0],
+    [0, 1, 0, 1, 0, 1, 0, 1],
+    [1, 0, 1, 0, 1, 0, 1, 0],
   ];
   turn: number = 0; // 0 - white, 1 - black
   constructor() {}
@@ -486,8 +486,11 @@ class Checkers {
       this.time--;
       if (this.time === 0) {
         this.turn = this.turn === 0 ? 1 : 0;
-        player.emit("message", "You ran out of time!");
+        player.emit("endTurn", "You ran out of time!");
         clearInterval(this.timer!);
+        this.createTimer(opponent, player);
+        opponent.emit("timer", this.time);
+        return;
       }
       opponent.emit("timer", this.time);
     }, 1000);

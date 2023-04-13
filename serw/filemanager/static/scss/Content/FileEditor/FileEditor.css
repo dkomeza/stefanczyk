@@ -103,6 +103,7 @@
   flex-grow: 1;
 }
 .container #editor #code .line {
+  white-space: pre;
   font-family: "JetBrains Mono", monospace;
   font-size: var(--fontSize);
   color: #ffffff;

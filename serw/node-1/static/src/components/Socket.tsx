@@ -20,7 +20,7 @@ class socket {
   public connect(username: string) {
     this.username = username;
     this.socket = io("", {
-      path: "/socket.io",
+      path: "/socket",
       query: {
         username,
       },
@@ -34,7 +34,6 @@ class socket {
           this.setMessages([data]);
         }
       }
-      console.log("juh", data);
     });
   }
 

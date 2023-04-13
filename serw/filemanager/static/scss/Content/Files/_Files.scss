@@ -33,6 +33,56 @@
   }
 }
 
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: $background-transparent;
+  backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+  .progress {
+    background-color: $background-primary;
+    padding: 12px 16px;
+    border-radius: 16px;
+    width: 200px;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    row-gap: 8px;
+    .progress-inner {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      column-gap: 8px;
+      flex: 1;
+      width: 100%;
+      .progress-outer-bar {
+        width: 100%;
+        flex: 1;
+        background-color: $background-secondary;
+        height: 12px;
+        border-radius: 8px;
+        overflow: hidden;
+        .progress-inner-bar {
+          height: 100%;
+          background-color: $accent-primary;
+          border-radius: 8px;
+          width: 0;
+          transition: width 0.3s ease-in-out;
+        }
+      }
+      .progress-text-span {
+        width: 32px;
+      }
+    }
+  }
+}
+
 .full-name {
   display: none !important;
 }

@@ -1,0 +1,13 @@
+.row {
+  display: flex;
+  column-gap: 24px;
+}
+.stars {
+    display: flex;
+}
+.star {
+  img {
+    width: 40px;
+    height: 40px;
+  }
+}

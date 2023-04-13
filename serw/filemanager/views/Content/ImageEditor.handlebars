@@ -20,33 +20,17 @@
   <div id="editor">
     <aside>
       <ul>
-        <li class="normal filter-image" data-filter="">
-          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
-        </li>
-        <li class="sepia filter-image" data-filter="sepia(100%)">
-          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
-        </li>
-        <li class="grayscale filter-image" data-filter="grayscale(100%)">
-          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
-        </li>
-        <li class="invert filter-image" data-filter="invert(100%)">
-          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
-        </li>
-        <li class="blur filter-image" data-filter="blur(4px)"
-          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
-        </li>
-        <li class="brightness filter-image" data-filter="brightness(200%)">
-          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
-        </li>
-        <li class="contrast filter-image" data-filter="contrast(200%)">
-          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
-        </li>
-        <li class="hue-rotate filter-image" data-filter="hue-rotate(90deg)">
-          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
-        </li>
-        <li class="saturate filter-image" data-filter="saturate(200%)">
-          <img src="data:image/png;base64, {{context.data}}" alt="" srcset="" />
-        </li>
+        {{#each context.filters}}
+          <li class="filter-image" data-filter="{{this}}">
+            <img
+              src="data:image/png;base64, {{../context.data}}"
+              alt=""
+              srcset=""
+              style="filter: {{this}};"
+            />
+          </li>
+        {{/each}}
+
       </ul>
     </aside>
     <div id="image">

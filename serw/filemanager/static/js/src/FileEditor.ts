@@ -152,6 +152,24 @@ class FileEditor {
       }
       if (e.key === "Tab") {
         e.preventDefault();
+        const target = e.target as HTMLDivElement;
+        const sel = window.getSelection();
+        const cursorPosition = sel?.getRangeAt(0).endOffset;
+        const text = target.textContent;
+        console.log("co do kurwy");
+        if (text && cursorPosition != undefined) {
+          const before = text.slice(0, cursorPosition);
+          const after = text.slice(cursorPosition);
+          target.textContent = before + "  " + after;
+          const range = document.createRange();
+          range.setStart(target.childNodes[0], cursorPosition + 2);
+          range.collapse(true);
+          sel?.removeAllRanges();
+          sel?.addRange(range);
+        } else {
+          target.textContent += "  ";
+          console.log(target.textContent);
+        }
       }
       if (e.key === "ArrowUp") {
         e.preventDefault();
@@ -245,8 +263,10 @@ class FileEditor {
       this.setTheme();
     });
     this.decreaseFontSize.addEventListener("click", () => {
-      this.fontSize -= 2;
-      this.setTheme();
+      if (this.fontSize > 2) {
+        this.fontSize -= 2;
+        this.setTheme();
+      }
     });
     this.increaseTheme.addEventListener("click", () => {
       if (this.theme < 2) {

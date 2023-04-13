@@ -521,6 +521,7 @@ $red-gradient: linear-gradient(#ff0000 0%, #cc0000 100%);
           border-radius: 8px;
           padding: 4px 8px;
           outline: none;
+          font-family: "Baloo 2", sans-serif;
           &:focus {
             border: 1px solid #383838;
           }
@@ -536,6 +537,7 @@ $red-gradient: linear-gradient(#ff0000 0%, #cc0000 100%);
           border-radius: 8px;
           cursor: pointer;
           transition: all 0.2s ease-in-out;
+          font-family: "Baloo 2", sans-serif;
         }
       }
     }

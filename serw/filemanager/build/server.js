@@ -27,6 +27,7 @@ var __importDefault = (this && this.__importDefault) || function (mod) {
 };
 Object.defineProperty(exports, "__esModule", { value: true });
 const express_1 = __importDefault(require("express"));
+const nocache_1 = __importDefault(require("nocache"));
 const Auth_1 = __importDefault(require("./api/Auth"));
 const FS_1 = __importDefault(require("./api/FS"));
 const formidable_1 = __importDefault(require("formidable"));
@@ -38,8 +39,20 @@ const context = {
     files: [],
     folders: [],
 };
+const effects = [
+    "none",
+    "sepia(100%)",
+    "grayscale(100%)",
+    "invert(100%)",
+    "blur(4px)",
+    "brightness(200%)",
+    "contrast(200%)",
+    "hue-rotate(90deg)",
+    "saturate(200%)",
+];
 const app = (0, express_1.default)();
 app.use(express_1.default.json());
+app.use((0, nocache_1.default)());
 app.use(express_1.default.urlencoded({ extended: true }));
 app.use(express_1.default.static("./static"));
 app.use((0, cookie_parser_1.default)());
@@ -152,6 +165,14 @@ app.get("/files/*", (req, res) => {
         res.redirect("/login");
     }
 });
+function isImage(file) {
+    const imageTypes = ["png", "jpg", "jpeg"];
+    const fileType = file.split(".").pop();
+    if (imageTypes.includes(fileType)) {
+        return true;
+    }
+    return false;
+}
 app.get("/editor/*", (req, res) => {
     const { username, publicKey } = req.cookies;
     const directory = req.url.split("/").splice(2).join("/");
@@ -163,12 +184,13 @@ app.get("/editor/*", (req, res) => {
             if (data) {
                 const file = finaldir.split("/").pop();
                 const { content } = FS_1.default.getFileContent(username, finaldir);
-                if ((file === null || file === void 0 ? void 0 : file.endsWith(".png")) || (file === null || file === void 0 ? void 0 : file.endsWith(".jpg"))) {
+                if (isImage(file)) {
                     const data = FS_1.default.getImage(username, finaldir);
                     const context = {
                         path: path,
                         file: file,
                         data,
+                        filters: effects,
                     };
                     res.render("Content/ImageEditor.handlebars", {
                         context,

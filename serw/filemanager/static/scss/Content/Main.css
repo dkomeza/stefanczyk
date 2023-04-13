@@ -96,7 +96,7 @@
           user-select: none;
 }
 .file.selected {
-  background-color: rgba(25, 24, 25, 0.4);
+  background-color: #191819;
 }
 .file input {
   text-align: center;
@@ -145,7 +145,7 @@
           user-select: none;
 }
 .folder.selected {
-  background-color: rgba(25, 24, 25, 0.4);
+  background-color: #191819;
 }
 
 .breadcrumbs .breadcrumb {
@@ -241,6 +241,58 @@
   -moz-column-gap: 16px;
        column-gap: 16px;
   row-gap: 16px;
+}
+
+.progress-bar {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100vw;
+  height: 100vh;
+  background-color: rgba(25, 24, 25, 0.4);
+  -webkit-backdrop-filter: blur(4px);
+          backdrop-filter: blur(4px);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 100;
+}
+.progress-bar .progress {
+  background-color: #0b0d11;
+  padding: 12px 16px;
+  border-radius: 16px;
+  width: 200px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  row-gap: 8px;
+}
+.progress-bar .progress .progress-inner {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  -moz-column-gap: 8px;
+       column-gap: 8px;
+  flex: 1;
+  width: 100%;
+}
+.progress-bar .progress .progress-inner .progress-outer-bar {
+  width: 100%;
+  flex: 1;
+  background-color: #191819;
+  height: 12px;
+  border-radius: 8px;
+  overflow: hidden;
+}
+.progress-bar .progress .progress-inner .progress-outer-bar .progress-inner-bar {
+  height: 100%;
+  background-color: #5c85e6;
+  border-radius: 8px;
+  width: 0;
+  transition: width 0.3s ease-in-out;
+}
+.progress-bar .progress .progress-inner .progress-text-span {
+  width: 32px;
 }
 
 .full-name {

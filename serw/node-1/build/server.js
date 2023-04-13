@@ -36,7 +36,7 @@ const server = http_1.default.createServer((req, res) => {
     res.end("Hello world");
 });
 const io = new socket_io_1.Server(server, {
-    path: "/socket.io",
+    path: "/socket",
 });
 io.on("connection", (socket) => {
     const date = new Date();
@@ -86,7 +86,6 @@ io.on("connection", (socket) => {
 });
 function useStatic(path, req, res) {
     let url = decodeURI(req.url || "/");
-    console.log(url);
     if (url === null || url === void 0 ? void 0 : url.endsWith("/")) {
         url += "index.html";
     }
@@ -130,4 +129,4 @@ function handleFileType(fileName) {
             return "text/plain";
     }
 }
-server.listen(5000);
+server.listen(3000);

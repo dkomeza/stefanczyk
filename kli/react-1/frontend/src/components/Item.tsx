@@ -27,8 +27,8 @@ function Item(props: { product: Item }) {
       <div className="rating-wrapper">
         <p className="rating">Rating ({product.stars})</p>
         <div className="stars">
-          {[...Array(product.stars)].map((_, i) => (
-            <img src={product.img_url} alt="" key={i} />
+          {[...Array(product.stars)].map((_, key) => (
+            <img src={product.img_url} key={key} />
           ))}
         </div>
       </div>

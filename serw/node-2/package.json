@@ -1,0 +1,17 @@
+{
+  "name": "filemanager",
+  "version": "1.0.0",
+  "main": "./build/server.js",
+  "repository": "https://github.com/dkomeza/filemanager",
+  "author": "dkomeza",
+  "license": "MIT",
+  "scripts": {
+    "build": "npx tsc",
+    "start": "node dist/index.js",
+    "dev": "concurrently \"npx tsc --watch\" \"nodemon -q build/index.js --delay 500ms\" "
+  },
+  "devDependencies": {
+    "@types/node": "^18.14.4"
+  },
+  "dependencies": {}
+}

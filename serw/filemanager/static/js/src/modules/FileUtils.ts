@@ -114,7 +114,7 @@ class FileUtils {
             <label for="file-name-input">File name</label>
             <input type="text" id="file-name-input" name="filename" style="color: black">
         </div>
-        <button type="submit" style="color: black">Create folder</button>
+        <button type="submit" style="color: black">Create file</button>
     </form>`;
     this.createFileDiv = createFileDiv;
   }

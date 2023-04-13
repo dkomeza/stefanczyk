@@ -1,4 +1,5 @@
 import express from "express";
+import nocache from "nocache";
 import Auth from "./api/Auth";
 import FS from "./api/FS";
 import formidable from "formidable";
@@ -40,9 +41,22 @@ const context: ContextInterface = {
   folders: [],
 };
 
+const effects = [
+  "none",
+  "sepia(100%)",
+  "grayscale(100%)",
+  "invert(100%)",
+  "blur(4px)",
+  "brightness(200%)",
+  "contrast(200%)",
+  "hue-rotate(90deg)",
+  "saturate(200%)",
+];
+
 const app = express();
 
 app.use(express.json());
+app.use(nocache());
 app.use(express.urlencoded({ extended: true }));
 app.use(express.static("./static"));
 app.use(cookieParser());
@@ -162,6 +176,15 @@ app.get("/files/*", (req, res) => {
   }
 });
 
+function isImage(file: string) {
+  const imageTypes = ["png", "jpg", "jpeg"];
+  const fileType = file.split(".").pop();
+  if (imageTypes.includes(fileType!)) {
+    return true;
+  }
+  return false;
+}
+
 app.get("/editor/*", (req, res) => {
   const { username, publicKey } = req.cookies;
   const directory = req.url.split("/").splice(2).join("/");
@@ -174,12 +197,13 @@ app.get("/editor/*", (req, res) => {
         const file = finaldir.split("/").pop();
         const { content } = FS.getFileContent(username, finaldir);
 
-        if (file?.endsWith(".png") || file?.endsWith(".jpg")) {
+        if (isImage(file!)) {
           const data = FS.getImage(username, finaldir);
           const context = {
             path: path,
             file: file,
             data,
+            filters: effects,
           };
           res.render("Content/ImageEditor.handlebars", {
             context,
