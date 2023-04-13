@@ -13,9 +13,11 @@
     "coverage": "vitest run --coverage"
   },
   "dependencies": {
-    "slow.ts": "^0.0.15"
+    "formidable": "^2.1.1",
+    "slow.ts": "0.0.17"
   },
   "devDependencies": {
+    "@types/formidable": "^2.0.5",
     "@types/node": "^18.15.11",
     "@types/supertest": "^2.0.12",
     "@vitest/coverage-c8": "^0.29.7",
