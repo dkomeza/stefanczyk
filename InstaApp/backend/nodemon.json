@@ -1,0 +1,4 @@
+{
+  "ignore": ["*.test.ts", "src/data/Images.json", "**/data/**"],
+  "delay": 500
+}
