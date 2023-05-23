@@ -9,7 +9,15 @@ interface User {
 
 interface AuthProvider {
   user: User | null;
-  signin: (email: string, password: string) => Promise<void>;
+  signIn: (username: string, password: string) => Promise<void>;
+  signUp: (
+    name: string,
+    surname: string,
+    username: string,
+    email: string,
+    password: string
+  ) => Promise<void>;
+  getToken: () => string;
 }
 
 export const AuthContext = React.createContext({} as AuthProvider);
@@ -29,7 +37,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
         setLoading(false);
         return;
       }
-      const { token } = JSON.parse(user);
+      const token = JSON.parse(user);
       try {
         setUser(await authenticate(token));
       } catch (error) {
@@ -38,11 +46,13 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       setLoading(false);
     }
     loadUserFromLocalStorage();
-  });
+  }, []);
 
   const value = {
     user,
-    signin,
+    signIn,
+    signUp,
+    getToken,
   };
 
   async function authenticate(token: string) {
@@ -54,26 +64,59 @@ export function AuthProvider({ children }: { children: ReactNode }) {
       body: JSON.stringify({ token }),
     });
     if (response.ok) {
-      return response.json();
+      const data = await response.json();
+      return data.user;
     }
     throw new Error("Authentication failed");
   }
 
-  async function signin(email: string, password: string) {
+  async function signIn(username: string, password: string) {
     const response = await fetch("/api/users/signin", {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ email, password }),
+      body: JSON.stringify({ username, password }),
     });
     if (response.ok) {
       const data = await response.json();
-      localStorage.setItem("user", JSON.stringify(data));
+      localStorage.setItem("user", JSON.stringify(data.token));
       setUser(await authenticate(data.token));
       return;
     }
     throw new Error("Authentication failed");
+  }
+
+  async function signUp(
+    name: string,
+    surname: string,
+    username: string,
+    email: string,
+    password: string
+  ) {
+    const response = await fetch("/api/users/signup", {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      body: JSON.stringify({ name, surname, username, email, password }),
+    });
+    if (response.ok) {
+      const data = await response.json();
+      localStorage.setItem("user", JSON.stringify(data.token));
+      setUser(await authenticate(data.token));
+      return;
+    }
+    const data = await response.json();
+    throw new Error("Authentication failed: " + data.status);
+  }
+
+  function getToken() {
+    const user = localStorage.getItem("user");
+    if (!user) {
+      return null;
+    }
+    return JSON.parse(user);
   }
 
   return (

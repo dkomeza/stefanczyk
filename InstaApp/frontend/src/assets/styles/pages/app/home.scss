@@ -1,0 +1,28 @@
+@use "@assets/styles/variables" as *;
+
+main > div.home {
+  display: flex;
+  flex-direction: row;
+  width: 100%;
+  min-height: 100vh;
+  justify-content: center;
+  .home_feed {
+    padding: 5rem 0 0 0;
+    display: flex;
+    justify-content: center;
+    flex: 1;
+
+    > div {
+      display: flex;
+      flex-direction: column;
+    }
+  }
+  aside {
+    position: absolute;
+    right: 0;
+    top: 0;
+    min-height: 100vh;
+    padding: 5rem 3rem 3rem 3rem;
+    border-left: 1px solid transparentize($text-secondary, 0.7);
+  }
+}

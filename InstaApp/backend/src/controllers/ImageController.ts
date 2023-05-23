@@ -1,83 +1,244 @@
 import * as fs from "fs";
 import formidable from "formidable";
-import { ImageModel } from "../models/ImageModel.js";
+import { ImageModel, Image } from "../models/ImageModel.js";
+import { PostModel } from "../models/PostModel.js";
+import { User } from "../models/UserModel.js";
+import { TagModel, Tag } from "../models/TagModel.js";
+import UserController from "./UserController.js";
+import mongoose from "mongoose";
+import sharp from "sharp";
 
-class FileController {
-  protected imageController: ImageController;
-
-  constructor() {
-    this.imageController = new ImageController();
-  }
-
-  public saveImage(album: string, images: formidable.File[]) {
-    if (album && images) {
-      this.imageController.saveImage(album, images);
-    }
-  }
-
-  public removeAllImages() {
-    this.imageController.removeAllImages();
-  }
+interface Post {
+  id: string;
+  author: string;
+  description: string;
+  images: string[];
+  lastChangeTime: Date;
+  lastChangeOperation: string;
+  likes: string[];
+  comments: string[];
+  liked: boolean;
+  tags: string[];
 }
 
-class ImageController {
-  public saveImage(album: string, images: formidable.File[]) {
-    this.checkAlbumExists(album);
+class FileController {
+  public async savePost(
+    token: string,
+    description: string,
+    tags: string[],
+    images: formidable.File[]
+  ) {
+    const user = await UserController.getUserByToken(token);
+    if (!user.ok) {
+      return { ok: false, status: "Invalid token" };
+    }
+    if (!user.user) {
+      return { ok: false, status: "User not found" };
+    }
+
+    const User = user.user;
+
+    this.checkAlbumExists(User._id.toString());
+
+    const imageArray = [] as mongoose.Types.ObjectId[];
 
     for (const image of images) {
-      this.copyImage(album, image);
-      this.removeImage(image);
-      this.saveImageToDB(album, image);
-    }
-  }
+      this.moveImage(image, User._id.toString());
 
-  private checkAlbumExists(album: string) {
-    if (!fs.existsSync(`./uploads/${album}`)) {
-      fs.mkdirSync(`./uploads/${album}`);
-    }
-  }
+      const newImage = new ImageModel({
+        album: User._id,
+        originalName: image.originalFilename!,
+        path: `./uploads/${User._id}/${image.newFilename!}`,
+        lastChangeOperation: "create",
+        history: [
+          {
+            desc: "Image created",
+            operation: "create",
+            path: `./uploads/${User._id}/${image.newFilename!}`,
+          },
+        ],
+        contentType: image.mimetype!,
+      });
 
-  private copyImage(album: string, image: formidable.File) {
-    fs.cpSync(image.filepath, `./uploads/${album}/${image.newFilename}`);
-  }
-
-  private removeImage(image: formidable.File) {
-    if (fs.existsSync(image.filepath)) {
-      fs.rmSync(image.filepath);
-    }
-  }
-
-  public async removeAllImages() {
-    const files = fs.readdirSync("./uploads");
-
-    for (const file of files) {
-      if (file !== ".gitignore") {
-        fs.rmSync(`./uploads/${file}`, {
-          recursive: true,
-          force: true,
-        });
-      }
+      await newImage.save();
+      const imageObject = newImage.toObject();
+      imageArray.push(imageObject._id);
     }
 
-    await ImageModel.deleteMany({}).exec();
-  }
+    const tagsArray = await this.getTags(tags);
 
-  private saveImageToDB(album: string, image: formidable.File) {
-    const newImage = new ImageModel({
-      album,
-      originalName: image.originalFilename,
-      path: `./uploads/${album}/${image.newFilename}`,
+    const newPost = new PostModel({
+      images: imageArray,
+      author: User._id,
+      description,
       lastChangeOperation: "create",
       history: [
         {
-          desc: "Image created",
+          desc: "Post created",
           operation: "create",
-          path: `./uploads/${album}/${image.newFilename}`,
         },
       ],
+      tags: tagsArray,
     });
-    newImage.save();
+
+    await newPost.save();
+
+    const postObject = newPost.toObject();
+
+    this.savePostToTags(tagsArray, postObject._id);
+
+    return { ok: true, status: "ok" };
   }
+
+  private checkAlbumExists(album: string) {
+    const albumPath = `./uploads/${album}`;
+    if (!fs.existsSync(albumPath)) {
+      fs.mkdirSync(albumPath);
+    }
+  }
+
+  private moveImage(image: formidable.File, album: string) {
+    const oldPath = image.filepath;
+    const newPath = `./uploads/${album}/${image.newFilename}`;
+    fs.renameSync(oldPath, newPath);
+  }
+
+  private async getTags(tags: string[]) {
+    const tagsArray = [] as mongoose.Types.ObjectId[];
+    for (const tag of tags) {
+      const tagExists = await TagModel.findOne({ name: tag });
+      if (tagExists) {
+        tagExists.popularity++;
+        await tagExists.save();
+        tagsArray.push(tagExists._id);
+      } else {
+        const newTag = new TagModel({
+          name: tag,
+        });
+        await newTag.save();
+        tagsArray.push(newTag._id);
+      }
+    }
+
+    return tagsArray;
+  }
+
+  private async savePostToTags(
+    tags: mongoose.Types.ObjectId[],
+    post: mongoose.Types.ObjectId
+  ) {
+    for (const tag of tags) {
+      const tagObject = await TagModel.findById(tag);
+      if (tagObject) {
+        tagObject.posts.push(post);
+        await tagObject.save();
+      }
+    }
+  }
+
+  public getPosts = async (token: string) => {
+    const user = await UserController.getUserByToken(token);
+    if (!user.ok) {
+      return { ok: false, status: "Invalid token" };
+    }
+    if (!user.user) {
+      return { ok: false, status: "User not found" };
+    }
+
+    const posts = await PostModel.find({})
+      .populate<{ images: Image[] }>("images")
+      .populate<{ author: User }>("author")
+      .populate<{ likes: User[] }>("likes")
+      .populate<{ tags: Tag[] }>("tags");
+
+    const likedPosts = posts.map((post) => {
+      const likes = post.likes.map((like) => like._id.toString());
+      return likes.includes(user.user!._id.toString());
+    });
+
+    const postsArray = [] as Post[];
+
+    posts.forEach((post, index) => {
+      const Post: Post = {
+        id: post._id.toString(),
+        author: post.author.username,
+        description: post.description,
+        images: post.images.map((image) => image._id.toString()),
+        lastChangeTime: post.lastChangeTime,
+        lastChangeOperation: post.lastChangeOperation,
+        likes: post.likes.map((like) => like._id.toString()),
+        comments: post.comments.map((comment) => comment._id.toString()),
+        liked: likedPosts[index] || false,
+        tags: post.tags.map((tag) => tag.name),
+      };
+      postsArray.push(Post);
+    });
+
+    return { ok: true, status: "ok", posts: postsArray };
+  };
+
+  public getImage = async (id: string) => {
+    const image = await ImageModel.findById(id);
+    if (!image) {
+      return { ok: false, status: "Image not found" };
+    }
+
+    return { ok: true, status: "ok", image };
+  };
+
+  public getPreview = async (id: string) => {
+    const image = await ImageModel.findById(id);
+    if (!image) {
+      return { ok: false, status: "Image not found" };
+    }
+
+    const previewPath = "." + image.path.split(".")[1] + "_preview.webp";
+
+    if (!fs.existsSync(previewPath)) {
+      await new Promise<string>((resolve) => {
+        sharp(image.path)
+          .resize(300)
+          .webp({ quality: 80 })
+          .toFile(previewPath, (err) => {
+            if (err) {
+              console.log(err);
+            }
+            resolve(previewPath);
+          });
+      });
+    }
+
+    return { ok: true, status: "ok", previewPath };
+  };
+
+  public likePost = async (token: string, id: string) => {
+    const user = await UserController.getUserByToken(token);
+
+    if (!user.ok) {
+      return { ok: false, status: "Invalid token" };
+    }
+    if (!user.user) {
+      return { ok: false, status: "User not found" };
+    }
+
+    const post = await PostModel.findById(id);
+    if (!post) {
+      return { ok: false, status: "Post not found" };
+    }
+
+    const likes = post.likes.map((like) => like._id.toString());
+    if (likes.includes(user.user._id.toString())) {
+      post.likes = post.likes.filter(
+        (like) => like._id.toString() !== user.user!._id.toString()
+      );
+    } else {
+      const userObject = new mongoose.Types.ObjectId(user.user._id);
+      post.likes.push(userObject);
+    }
+    post.save();
+
+    return { ok: true, status: "ok" };
+  };
 }
 
 export default new FileController();

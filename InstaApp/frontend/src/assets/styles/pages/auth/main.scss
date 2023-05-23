@@ -1,0 +1,139 @@
+@use "@assets/styles/variables" as *;
+
+.signin,
+.signup {
+  width: 100%;
+  height: 100vh;
+  display: flex;
+  padding: 1rem;
+  column-gap: 4rem;
+}
+
+section.form {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding: 2rem;
+  .redirect-link {
+    margin-top: 1.5rem;
+    text-align: center;
+    font-weight: 500;
+    a {
+      color: $text-primary;
+      text-decoration: none;
+      transition: 0.2s;
+      &:hover {
+        text-decoration: underline;
+      }
+    }
+  }
+}
+
+section.image {
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  flex: 1;
+  border-top-left-radius: 4rem;
+  border-bottom-right-radius: 4rem;
+  overflow: hidden;
+  height: 100%;
+  div {
+    width: 100%;
+    height: 100%;
+  }
+
+  img {
+    object-fit: cover;
+    width: 100%;
+    height: 100%;
+    display: block;
+  }
+}
+
+form {
+  display: flex;
+  flex-direction: column;
+  row-gap: 1.5rem;
+  .form__group {
+    display: flex;
+    flex-direction: column;
+    label {
+      font-size: 1rem;
+      color: $text-secondary;
+      margin-left: 0.5rem;
+      font-weight: 500;
+    }
+    input {
+      padding: 0.5rem 1rem;
+      border-radius: 0.5rem;
+      border: 1px solid transparentize($text-secondary, 0.7);
+      outline: none;
+      font-family: inherit;
+      font-size: 1rem;
+      color: $text-primary;
+      width: 18rem;
+      font-weight: 500;
+    }
+
+    button {
+      background-color: $background-secondary;
+      color: $text-tertiary;
+      border: none;
+      outline: none;
+      padding: 0.9rem 1rem;
+      border-radius: 0.5rem;
+      font-size: 1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s ease-in-out;
+      box-shadow: 0 0 0.75rem rgba(0, 0, 0, 0.2);
+      font-family: "Baloo 2", sans-serif;
+      &:hover {
+        background-color: darken($background-secondary, 5%);
+        box-shadow: 0 0 0.75rem rgba(0, 0, 0, 0.4);
+      }
+    }
+  }
+
+  .form__group.row {
+    display: flex;
+    flex-direction: row;
+    align-items: center;
+    justify-content: space-between;
+    .form__group {
+      input {
+        width: 8rem;
+      }
+      &:last-child {
+        input {
+          width: 9rem;
+        }
+      }
+    }
+  }
+}
+
+section.image .image-wrapper {
+  position: relative;
+  .image_text {
+    position: absolute;
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    height: fit-content;
+    background-color: rgba(255, 255, 255, 0.25);
+    padding: 1.5rem 3rem 3rem 3rem;
+    backdrop-filter: blur(1rem);
+    .username {
+      font-size: 1.75rem;
+      font-weight: 700;
+      color: $text-primary;
+    }
+    .description {
+      font-size: 1.5rem;
+      font-weight: 600;
+      color: transparentize($text-primary, 0.1);
+    }
+  }
+}

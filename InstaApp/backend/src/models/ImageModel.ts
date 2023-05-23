@@ -1,9 +1,33 @@
 import mongoose from "mongoose";
 
+export interface Image {
+  _id: string;
+  album: string;
+  originalName: string;
+  path: string;
+  lastChangeTime: Date;
+  lastChangeOperation: string;
+  history: {
+    desc: string;
+    operation: string;
+    path: string;
+  }[];
+  contentType: string;
+}
+
 const images = new mongoose.Schema({
-  album: String,
-  originalName: String,
-  path: String,
+  album: {
+    type: String,
+    required: true,
+  },
+  originalName: {
+    type: String,
+    required: true,
+  },
+  path: {
+    type: String,
+    required: true,
+  },
   lastChangeTime: {
     type: Date,
     default: Date.now,
@@ -20,6 +44,10 @@ const images = new mongoose.Schema({
       path: String,
     },
   ],
+  contentType: {
+    type: String,
+    required: true,
+  },
 });
 
 export const ImageModel = mongoose.model("Image", images);

@@ -1,0 +1,73 @@
+@use "@assets/styles/variables" as *;
+
+@import url(https://fonts.googleapis.com/css?family=Marck+Script:regular);
+
+.navbar {
+  position: fixed;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+  padding: 5rem 3rem 3rem 3rem;
+  height: 100%;
+  // background-color: darken($background-primary, 8);
+  border-right: 1px solid transparentize($text-secondary, 0.7);
+  z-index: 10;
+  h1 {
+    font-family: "Marck Script", sans-serif;
+    font-size: 2.5rem;
+    margin-bottom: 2rem;
+    text-align: center;
+  }
+  ul {
+    margin-left: 1rem;
+    list-style-type: none;
+    display: flex;
+    flex-direction: column;
+    row-gap: 1rem;
+    li {
+      a {
+        display: flex;
+        align-items: center;
+        color: $text-primary;
+        text-decoration: none;
+        font-size: 1.5rem;
+        font-weight: 500;
+        transition: all 0.2s ease-in-out;
+        opacity: 0.7;
+        img {
+          width: 1.5rem;
+          height: 1.5rem;
+          margin-right: 1rem;
+        }
+      }
+
+      a.active {
+        opacity: 1;
+      }
+
+      a:hover {
+        opacity: 1;
+      }
+    }
+  }
+  .more-navbar {
+    margin-left: 1rem;
+    display: flex;
+    align-items: center;
+    color: $text-primary;
+    text-decoration: none;
+    font-size: 1.5rem;
+    font-weight: 500;
+    transition: all 0.2s ease-in-out;
+    opacity: 0.7;
+    cursor: pointer;
+    img {
+      margin-right: 1rem;
+      width: 1.5rem;
+      height: 1.5rem;
+    }
+    &:hover {
+      opacity: 1;
+    }
+  }
+}

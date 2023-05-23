@@ -1,6 +1,8 @@
 import { UserModel } from "../models/UserModel.js";
 import bcrypt from "bcryptjs";
 import jwt from "jsonwebtoken";
+import SlowRequest from "../../../../../../Github/slow/build/router/Request.js";
+import SlowResponse from "../../../../../../Github/slow/build/router/Response.js";
 
 interface UserData {
   username: string;
@@ -16,6 +18,25 @@ interface LoginData {
 }
 
 class UserController {
+  auth = async (req: SlowRequest, res: SlowResponse, next: () => void) => {
+    const token = req.headers["authorization"]?.split(" ")[1];
+    if (!token) {
+      return res.send({ ok: false, status: "No token provided" });
+    }
+
+    const auth = await this.authenticateUser(token);
+
+    if (!auth) {
+      return res.send({ ok: false, status: "Invalid token" });
+    }
+
+    if (!req.params["id"]) {
+      return res.send({ ok: false, status: "No image id provided" });
+    }
+
+    return next();
+  }
+
   async registerUser(userData: UserData) {
     const { username, email, password, name, surname } = userData;
     if (await this.checkTakenUsername(username)) {
@@ -91,18 +112,44 @@ class UserController {
   }
 
   async getUserData(token: string) {
-    const decodedToken = jwt.decode(token);
-    console.log(decodedToken);
-    // const user = await UserModel.findById(decodedToken?.id);
-    // if (!user) {
-    //   return { ok: false, status: "User not found" };
-    // }
-    // return { ok: true, user };
+    const decodedToken = jwt.decode(token) as { id: string };
+    if (!decodedToken) {
+      return { ok: false, status: "Invalid token" };
+    }
+
+    const user = await UserModel.findById(decodedToken.id);
+    if (!user) {
+      return { ok: false, status: "User not found" };
+    }
+    const { username, email, name, surname } = user;
+    return {
+      ok: true,
+      user: {
+        username,
+        email,
+        name,
+        surname,
+      },
+    };
   }
 
   async getAllUsers() {
     const users = await UserModel.find({});
     return users;
+  }
+
+  async getUserByToken(token: string) {
+    const decodedToken = jwt.decode(token) as { id: string };
+    if (!decodedToken) {
+      return { ok: false, status: "Invalid token" };
+    }
+
+    const user = await UserModel.findById(decodedToken.id);
+    if (!user) {
+      return { ok: false, status: "User not found" };
+    }
+
+    return { ok: true, user: user.toObject() };
   }
 }
 
